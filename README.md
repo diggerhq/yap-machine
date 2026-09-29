@@ -1,9 +1,10 @@
 # Yap machine
 
-A feed of the posts on X worth answering. An [OpenComputer](https://docs.opencomputer.dev/agents/overview)
-agent searches X for you, scores each new post against a brief you write,
-and a small app ranks what's left. You read the post, open it on X, and
-reply yourself. Nothing here writes or posts for you.
+Yap machine shows you the posts on X worth answering. An
+[OpenComputer](https://docs.opencomputer.dev/agents/overview) agent runs your
+saved X searches, scores each new post against a brief you write, and a
+small app lists the posts ranked by score. You open a post on X and reply
+yourself. The app never writes or posts anything.
 
 ![The feed](dev/design/screens/feed-open-1440-light.png)
 
@@ -23,19 +24,19 @@ you ◄── feed: Open · Filtered · Handled ◄─────────�
   add something to it.
 - **The feed** shows posts scoring 60 or more in *Open*, ranked by score and
   freshness, and the rest in *Filtered*.
-- **Your marks teach it.** Mark an Open post *Not relevant*, or a Filtered
-  one *Relevant*, with an optional note. The next scout run reads your marks
-  as examples, and a learning run folds them into short rules in your brief,
-  then re-scores the feed.
+- **Feedback:** mark an Open post *Not relevant*, or a Filtered one
+  *Relevant*, with an optional note. The next scout run reads your marks as
+  examples. A learning run then writes them into short rules in your brief
+  and scores the feed again.
 
 ## The agent
 
 The agent is a TypeScript function in
 [`agent.ts`](opencomputer/agents/yap/agent.ts). OpenComputer calls it before
-each model step and runs everything around it: the model, the tool calls,
-the session. The function only decides the model, the tools and the
-instructions, here from the [payload](https://docs.opencomputer.dev/agents/inputs)
-that started the session (abridged):
+each model step, and it returns the model, tools and instructions for that
+step. OpenComputer runs the model, executes the tool calls and keeps the
+session. This agent chooses its tools from the
+[payload](https://docs.opencomputer.dev/agents/inputs) that started the session (abridged):
 
 ```ts
 export default function Yap() {
@@ -54,18 +55,22 @@ export default function Yap() {
 }
 ```
 
-A session started without a role gets no tools at all.
+A session started without a role gets no tools.
 
-**Tools do the work; the model judges.** [Tools](https://docs.opencomputer.dev/agents/tools) are plain
-TypeScript. [`run_search`](opencomputer/agents/yap/tools/run-search.ts)
-takes only a search id: it claims the search from the app, calls X with the
-stored query and cursor, and hands the posts to the app. The model gets
-counts back, then reads posts in batches of 25 and submits a score and a
-one-line reason for each. It never sees a query, a cursor or a key, and it
-can only score posts the app holds.
+### Tools
 
-**Keys stay outside the agent.** The X API is a declared connection with its
-token as a [secret](https://docs.opencomputer.dev/agents/secrets)
+[Tools](https://docs.opencomputer.dev/agents/tools) are TypeScript functions the model can call.
+[`run_search`](opencomputer/agents/yap/tools/run-search.ts) takes a search
+id, claims that search from the app, calls X with the stored query and
+cursor, and sends the posts to the app. The model receives the counts, then
+reads the posts in batches of 25 and submits a score and a one-line reason
+for each. Queries, cursors and keys never pass through the model, and the
+app accepts scores only for posts it holds.
+
+### Credentials
+
+The X API is a declared connection whose token is a
+[secret](https://docs.opencomputer.dev/agents/secrets)
 ([`connections/x.ts`](opencomputer/agents/yap/connections/x.ts)):
 
 ```ts
@@ -78,13 +83,14 @@ export const xApi = defineConnection({
 });
 ```
 
-OpenComputer attaches the token at its outbound proxy, only for GET requests
-to `api.x.com/2/`. Every post the agent reads was written by a stranger; a
-post that tries to talk the model into leaking a key finds none in its
-reach. The app's own token works the same way.
+OpenComputer adds the token at its outbound proxy, and only to GET requests
+under `api.x.com/2/`. The token is never in the agent's runtime, so a post
+with instructions aimed at the model can't make it reveal the token. The
+connection to the app works the same way with the app's token.
 
-**Runs start from a schedule or from the app.** In production the scout runs
-on a [schedule](https://docs.opencomputer.dev/agents/schedules)
+### Schedule and API
+
+In production the scout runs on a [schedule](https://docs.opencomputer.dev/agents/schedules)
 ([`schedules/scout.ts`](opencomputer/agents/yap/schedules/scout.ts), abridged):
 
 ```ts
@@ -96,18 +102,25 @@ export default defineSchedule({
 });
 ```
 
-The app's Refresh button, and the learning runs after you mark posts, start
-the same agent through the [API](https://docs.opencomputer.dev/agents/api): a new
-[session](https://docs.opencomputer.dev/agents/sessions) and one turn with a payload.
+The app starts the same agent through the
+[API](https://docs.opencomputer.dev/agents/api) in two cases: a scout run
+when you press Refresh, and a learning run after you mark posts. Each start
+creates a [session](https://docs.opencomputer.dev/agents/sessions) and sends
+one turn with a payload.
 
-**The report is the session's result.** The run ends by calling `report`, a
-[result tool](https://docs.opencomputer.dev/agents/tools#the-session-result) whose output schema
-OpenComputer checks before committing it, so every run leaves a structured
-record: searches run, posts stored and scored, and a note.
+### Result
+
+A run ends by calling `report`, the agent's
+[result tool](https://docs.opencomputer.dev/agents/tools#the-session-result). OpenComputer validates its
+output against the tool's schema before saving it as the session's result,
+so each run records the searches it ran, the posts it stored and scored, and
+a note.
+
+### Deployment
 
 `npm run deploy:agent` builds the agent directory into an immutable
-[deployment](https://docs.opencomputer.dev/agents/deployments); every session stays on the deployment it
-started with.
+[deployment](https://docs.opencomputer.dev/agents/deployments). A session keeps the deployment it started
+on.
 
 ## Run it locally
 
@@ -130,7 +143,7 @@ fixed domain every free ngrok account gets.
 
 | Name | Where it goes | Required | What it is |
 |---|---|---|---|
-| `X_BEARER_TOKEN` | `opencomputer/.env.local` | yes | Your X app's **Bearer Token**: X developer portal → your app → **Keys and tokens**. The app-only one, starting `AAAA…`; not the API key and secret, not an access token. |
+| `X_BEARER_TOKEN` | `opencomputer/.env.local` | yes | Your X app's **Bearer Token**, under X developer portal → your app → **Keys and tokens**. It starts with `AAAA`. The API key and secret and the access token are different credentials. |
 | `OPENCOMPUTER_API_KEY` | `.env.local` | yes | An API key for your OpenComputer organization, from the dashboard. The app uses it to start the agent's runs. |
 | `YAP_PUBLIC_ORIGIN` | `.env.local` | yes | Your ngrok domain, e.g. `https://your-words.ngrok-free.app`: the address the agent reaches the app at. |
 | `YAP_AGENT_TOKEN` | both `.env.local` files | yes | Written by `npm run setup`. The agent presents it to the app; you don't need to set it. |
@@ -138,8 +151,8 @@ fixed domain every free ngrok account gets.
 | `YAP_SCORE_THRESHOLD` | `.env.local` | no | The score a post needs to reach Open. Default 60. |
 
 `npm run secrets` uploads `X_BEARER_TOKEN` and `YAP_AGENT_TOKEN` to
-OpenComputer, which attaches them to the agent's outgoing requests. The rest
-stay on your machine.
+OpenComputer, which adds them to the agent's outgoing requests. The other
+values stay on your machine.
 
 ### Set up, once
 
@@ -157,7 +170,7 @@ npm run deploy:agent
 |---|---|
 | `link` | Creates your OpenComputer project for the agent. |
 | `setup` | Local files only. Generates the token the agent presents to the app, into both `.env.local` files, and writes your ngrok domain into the agent's connection to the app. Lists anything still missing. |
-| `secrets` | Uploads `X_BEARER_TOKEN` and the agent token to your project. OpenComputer attaches them to the agent's outgoing requests; the agent's code never sees them. |
+| `secrets` | Uploads `X_BEARER_TOKEN` and the agent token to your project. OpenComputer adds them to the agent's outgoing requests, and the agent's code never sees them. |
 | `deploy:agent` | Deploys the agent to your project's development environment. Run it again after changing anything under `opencomputer/`. |
 
 If your ngrok domain changes, run `setup`, `secrets` and `deploy:agent`
@@ -189,8 +202,8 @@ usually within a minute or two.
 | Reply | `c` | Opens X's reply box for the post in a small window. You write and post it there, as yourself. |
 | Open on X | `o` | Opens the post on X in a new tab. |
 | Not relevant (Open) | `x` | Asks for an optional note, then moves the post to Handled. The agent learns from it. |
-| Relevant (Filtered) | `r` | The same, the other way. |
-| Done | `d` | Moves the post to Handled with no verdict. Nothing is learned; use it for posts you've answered already or want to skip. |
+| Relevant (Filtered) | `r` | Asks for an optional note, then moves the post to Handled. The agent learns from it. |
+| Done | `d` | Moves the post to Handled without feedback, so the agent learns nothing from it. For posts you've already answered or want to skip. |
 | Why it's here | | Shows the agent's one-line reason. |
 | Move | `j` `k` | Selects the next or previous post. |
 
@@ -207,7 +220,7 @@ searches; the model never sees that table.
 After loading, both live in the app's database: edit them on the **Brief**
 and **Searches** screens. Every brief change makes a version you can diff
 and restore, and each learned rule shows the marks behind it. Your brief
-and queries stay out of Git; `*.local.md` files are ignored.
+and queries aren't stored in Git, and Git ignores `*.local.md` files.
 
 Each search runs on its own interval, from 5 minutes to a day. Refresh runs
 every search not run in the last five minutes.
@@ -217,8 +230,8 @@ every search not run in the last five minutes.
 - **X API:** pay-per-use, drawn from the credits you load in the X developer
   portal: $0.005 for each post and $0.01 for each user a search returns,
   charged once per UTC day. A search fetches only posts newer than its last
-  run, so a post is paid for once. The app has no spending cap of its own:
-  when your credits run out, searches fail until you top up.
+  run, so a post is paid for once. The app has no spending cap of its own.
+  When your credits run out, searches fail until you top up.
 - **OpenComputer:** the agent's model calls and machine time, billed to your
   OpenComputer organization.
 
@@ -250,7 +263,7 @@ every search not run in the last five minutes.
 | `npm run tunnel` | ngrok from your domain to the app. |
 | `npm run seed:brief -- <file>` | Loads a brief and its searches. |
 | `npm run scout:once` | Starts a scout run from the terminal, like Refresh. |
-| `npm run rejudge` | Clears the scores of posts you haven't handled, so the next run scores them again under your current brief. Model time only; X isn't searched again. |
+| `npm run rejudge` | Clears the scores of posts you haven't handled, so the next run scores them again under your current brief. It uses model time only and doesn't search X. |
 | `npm run avatars` | Fills in profile pictures for posts stored before the app kept them ($0.01 per author). |
 | `npm run dev:sample` | The app over sample data on http://localhost:3310. No agent or setup needed. |
 | `npm run check` | Typecheck, lint, tests and build, as CI runs them. |
@@ -258,8 +271,8 @@ every search not run in the last five minutes.
 
 ## Deploying
 
-Running the app on Workers, behind Cloudflare Access, isn't documented yet.
-Until then, run it locally.
+Deploying the app to Cloudflare Workers, behind Cloudflare Access, isn't
+documented yet.
 
 ## License
 

@@ -56,7 +56,7 @@ the owner replies by hand. The README serves people; this file serves agents.
 ## Invariants
 
 - Nothing writes text for X or posts to it. The app links to posts and opens X's own reply composer; the agent only scores.
-- The model never supplies a query, a cursor or post content. Tool code does the plumbing; the model judges.
+- The model never supplies a query, a cursor or post content. Tool code calls X and the app, and the model only scores posts and writes learned rules.
 - The brief and the search queries are the owner's: they live in the database, never in Git.
 - The browser talks only to the app's routes; the server alone holds the database and OpenComputer keys.
 - Every multi-step write is one Postgres function called through `db.rpc`. Functions refuse with `{ error: "<code>" }`, which `problem.ts` maps to a status, and take the clock as `p_now`.
