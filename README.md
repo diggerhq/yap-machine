@@ -17,57 +17,81 @@ you ◄── feed: Open · Filtered · Handled ◄── the app ◄───�
 ## Run it locally
 
 The app and its database run on your machine. The agent runs in your
-OpenComputer project's development environment and reaches the app through a
-Cloudflare quick tunnel, which needs no Cloudflare account.
+OpenComputer project's development environment, in the cloud, and calls the
+app over HTTPS, so the app needs a public address: an
+[ngrok](https://ngrok.com) tunnel to `localhost:3300`, on the fixed domain
+ngrok gives every free account.
 
-You need:
+### What you need
 
-- Node 22.
-- An OpenComputer account: `npx opencomputer login`.
+- Node 22 and the [ngrok CLI](https://ngrok.com/download), with your authtoken
+  added (`ngrok config add-authtoken …`).
+- Your ngrok domain: ngrok dashboard → **Domains** (free accounts get one,
+  like `https://your-words.ngrok-free.app`).
+- An OpenComputer account (`npx opencomputer login`) and an **API key** for
+  your organization, from the dashboard.
 - An X API app on [pay-per-use](https://docs.x.com/x-api/getting-started/pricing)
   with credits loaded, and its app-only **bearer token**.
-- An OpenComputer **API key** for your organization, from the dashboard. The
-  app uses it to start the agent's runs.
 
-Then:
+### Set up, once
 
 ```bash
 npm install
-cp .env.example .env.local                           # set OPENCOMPUTER_API_KEY
-cp opencomputer/.env.example opencomputer/.env.local # set X_BEARER_TOKEN
-npm run dev
+cp .env.example .env.local                           # YAP_PUBLIC_ORIGIN, OPENCOMPUTER_API_KEY
+cp opencomputer/.env.example opencomputer/.env.local # X_BEARER_TOKEN
+npx opencomputer link --create-project yap-machine   # your project for the agent
+npm run setup
+npm run secrets
+npm run deploy:agent
 ```
 
-`npm run dev` does everything in one go:
+- `npm run setup` changes local files only. It generates the token the agent
+  presents to the app, into both `.env.local` files, and writes your ngrok
+  domain into the agent's `app` connection
+  (`opencomputer/agents/yap/connections/app.ts`). It lists anything still
+  missing.
+- `npm run secrets` uploads `X_BEARER_TOKEN` and `YAP_AGENT_TOKEN` to your
+  project's development environment. OpenComputer attaches them to the
+  agent's outgoing requests; the agent's code never sees them.
+- `npm run deploy:agent` deploys the agent to development. Run it again after
+  you change anything under `opencomputer/`.
 
-1. generates the token the agent uses on the app's routes, into both
-   `.env.local` files;
-2. links an OpenComputer project named `yap-machine` on the first run;
-3. starts a local database (Postgres in WebAssembly, kept in `dev/local/.pglite`);
-4. starts the app on http://localhost:3300;
-5. opens a tunnel and writes its address into the agent's `app` connection;
-6. uploads the agent's development secrets;
-7. deploys the agent to development.
+If you change `YAP_PUBLIC_ORIGIN`, run all three again: the origin is part
+of the agent's source, and a secret's allowed destinations follow it.
 
-Keep it running. In a second terminal:
+### Run
 
 ```bash
-npm run seed:brief -- brief.example.md   # a brief and three searches; make your own copy first
-npm run scout:once                       # one scout run: search X, store, score
+npm run dev      # terminal 1: the app on http://localhost:3300 and a local database
+npm run tunnel   # terminal 2: ngrok from your domain to the app
 ```
 
-Open http://localhost:3300. Posts appear as the run scores them. Run
-`npm run scout:once` again whenever you want fresh posts; a search runs only
-once its interval has passed. Follow a run with the
-`npx opencomputer session attach <id>` command that `scout:once` prints.
+Then, the first time, load a brief and its searches. `brief.example.md` is a
+sample for a fictional product; make your own copy and load that.
 
-Each `npm run dev` gets a new tunnel address, so it redeploys the agent,
-and `opencomputer/agents/yap/connections/app.ts` shows as changed. That file
-holds your app's address; don't commit the tunnel's.
+```bash
+npm run seed:brief -- brief.example.md
+```
 
-To use a hosted Supabase project instead of the local database, apply
+Start a scout run whenever you want fresh posts:
+
+```bash
+npm run scout:once
+```
+
+It searches X for every search whose interval has passed, stores new posts
+and scores them; they appear at http://localhost:3300 as they are scored.
+Follow the run with the `npx opencomputer session attach <id>` command it
+prints. In development the five-minute schedule does not recur on its own;
+in production it does.
+
+The local database lives in `dev/local/.pglite`; delete that directory to
+start over. To use a hosted Supabase project instead, apply
 `supabase/migrations/` to it and set `SUPABASE_URL` and `SUPABASE_SECRET_KEY`
 (an `sb_secret_…` key) in `.env.local`.
+
+Through the tunnel, only the agent's routes answer, and only with its token.
+Your feed, brief and searches are served on `localhost` alone.
 
 ## Using it
 
@@ -116,7 +140,7 @@ this repository; `*.local.md` files are ignored for your working copy.
 
 ```bash
 npm run check                      # typecheck, lint, tests (SQL runs in PGlite), build
-npm run dev:sample                 # the app over authored sample data, no agent
+npm run dev:sample                 # the app over authored sample data, no agent or setup
 npx playwright test --config dev/playwright.config.ts   # captures every screen
 ```
 

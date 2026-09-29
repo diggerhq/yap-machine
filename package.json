@@ -36,9 +36,12 @@
     }
   },
   "scripts": {
-    "dev": "tsx scripts/local.ts",
+    "dev": "tsx scripts/dev.ts",
     "dev:app": "vite dev --port 3300 --strictPort",
     "dev:sample": "tsx dev/local/run.ts",
+    "setup": "tsx scripts/setup.ts",
+    "secrets": "tsx scripts/secrets.ts",
+    "tunnel": "tsx scripts/tunnel.ts",
     "build": "vite build",
     "deploy": "vite build && wrangler deploy",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p opencomputer/tsconfig.json",
@@ -50,7 +53,7 @@
     "scout:once": "tsx scripts/scout-once.ts",
     "seed:brief": "tsx scripts/seed-brief.ts",
     "doctor": "cd opencomputer && opencomputer doctor",
-    "deploy:agents": "cd opencomputer && opencomputer deploy --alias development"
+    "deploy:agent": "cd opencomputer && opencomputer deploy --alias development"
   },
   "dependencies": {
     "@fontsource-variable/geist-mono": "5.3.0",
@@ -84,7 +87,6 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.1",
-    "cloudflared": "^0.7.3",
     "happy-dom": "20.14.5",
     "json-schema-to-ts": "3.1.1",
     "shadcn": "4.21.0",

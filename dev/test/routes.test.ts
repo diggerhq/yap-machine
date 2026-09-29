@@ -147,7 +147,7 @@ describe("the guards", () => {
 
   it("serve the owner's routes only on the app's host, and the agent's through the tunnel too", async () => {
     await seedBrief(db);
-    const tunnel = "https://random-words.trycloudflare.com";
+    const tunnel = "https://your-words.ngrok-free.app";
     expect((await serve(new Request(`${tunnel}/api/brief`))).status).toBe(404);
     expect((await serve(new Request(`${tunnel}/api/feed`))).status).toBe(404);
     const agent = await serve(

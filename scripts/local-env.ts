@@ -2,7 +2,8 @@
 // app, opencomputer/.env.local for the agent's secrets, and the linked
 // project. With no SUPABASE_URL the app uses the local database (PGlite with
 // the real migration, served by dev/local/db-server.ts), so a fresh clone
-// runs with no database account at all.
+// runs with no database account at all. YAP_PUBLIC_ORIGIN is the fixed
+// public address the agent reaches the app at (the ngrok domain locally).
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { parseEnv } from "node:util";
@@ -69,6 +70,7 @@ export function appEnv(): Record<string, string> {
     SUPABASE_URL: hosted ? (value("SUPABASE_URL") as string) : LOCAL_DB_URL,
     SUPABASE_SECRET_KEY: hosted ? (value("SUPABASE_SECRET_KEY") ?? "") : LOCAL_DB_KEY,
     YAP_ORIGIN: value("YAP_ORIGIN") ?? `http://localhost:${String(APP_PORT)}`,
+    YAP_PUBLIC_ORIGIN: value("YAP_PUBLIC_ORIGIN") ?? "",
     YAP_AGENT_REF: value("YAP_AGENT_REF") ?? (project ? `${project.agentId}@development` : ""),
     ...(value("YAP_AGENT_TOKEN") ? { YAP_AGENT_TOKEN: value("YAP_AGENT_TOKEN") as string } : {}),
     ...(value("OPENCOMPUTER_API_KEY") ? { OPENCOMPUTER_API_KEY: value("OPENCOMPUTER_API_KEY") as string } : {}),
@@ -77,4 +79,22 @@ export function appEnv(): Record<string, string> {
 
 export function usesLocalDb(env: Record<string, string>): boolean {
   return env.SUPABASE_URL === LOCAL_DB_URL;
+}
+
+export const CONNECTION_FILE = "opencomputer/agents/yap/connections/app.ts";
+
+/** The origin the agent's app connection currently names. */
+export function connectionOrigin(): string | undefined {
+  return /origin: "(https:\/\/[^"]+)"/.exec(readFileSync(CONNECTION_FILE, "utf8"))?.[1];
+}
+
+/** A public origin: https, no path. */
+export function publicOrigin(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.pathname === "/" && !url.search ? url.origin : undefined;
+  } catch {
+    return undefined;
+  }
 }

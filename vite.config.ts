@@ -10,6 +10,14 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
+function publicHosts(): string[] {
+  try {
+    return process.env.YAP_PUBLIC_ORIGIN ? [new URL(process.env.YAP_PUBLIC_ORIGIN).host] : [];
+  } catch {
+    return [];
+  }
+}
+
 export default defineConfig(({ command, mode }) => {
   if (command === "serve") {
     // The environment wins over the file, so a replay (dev/e2e) can point the
@@ -20,9 +28,9 @@ export default defineConfig(({ command, mode }) => {
   }
   return {
     resolve: { tsconfigPaths: true },
-    // `npm run dev` exposes the dev server through a Cloudflare quick
-    // tunnel so the agent, which runs in the cloud, can reach its routes.
-    server: { allowedHosts: [".trycloudflare.com"] },
+    // The agent, which runs in the cloud, reaches the dev server through a
+    // tunnel at YAP_PUBLIC_ORIGIN (npm run tunnel), so that host is allowed.
+    server: { allowedHosts: publicHosts() },
     plugins: [
       tailwindcss(),
       ...(command === "build" ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : []),

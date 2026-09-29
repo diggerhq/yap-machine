@@ -2,8 +2,9 @@
 // attaches the bearer token from the YAP_AGENT_TOKEN secret; the runtime
 // never holds it.
 // GAP(G5): the origin must be a literal in this call, so it is the one
-// per-clone value in agent source. `npm run dev` rewrites it to the
-// current tunnel's origin; a deployed app sets it to the Worker's origin.
+// per-clone value in agent source. `npm run setup` sets it from
+// YAP_PUBLIC_ORIGIN in .env.local: your ngrok domain locally, the Worker's
+// address once deployed.
 import { bearer, type DataValue, defineConnection, useSecret } from "@opencomputer/agent";
 
 export const app = defineConnection({
