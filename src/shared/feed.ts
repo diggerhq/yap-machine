@@ -111,3 +111,31 @@ export function postUrl(item: Pick<FeedItem, "id" | "authorHandle">): string {
 export function replyUrl(item: Pick<FeedItem, "id">): string {
   return `https://x.com/intent/tweet?in_reply_to=${encodeURIComponent(item.id)}`;
 }
+
+/** A scout run as the Refresh control follows it. */
+export interface ScoutRun {
+  readonly sessionId: string;
+  readonly manual: boolean;
+  readonly startedAt: string;
+  readonly finishedAt: string | null;
+  /** Not finished 15 minutes after it started. */
+  readonly stalled: boolean;
+  /** Searches the run will work; null until it has read its work. */
+  readonly planned: number | null;
+  readonly searched: number;
+  readonly stored: number;
+  readonly judged: number;
+  /** Posts in the feed window not yet scored, by any run. */
+  readonly waiting: number;
+  readonly report: { notes?: string } | null;
+}
+
+export type ScoutPhase = "starting" | "searching" | "scoring" | "done" | "stalled";
+
+export function phaseOf(run: ScoutRun): ScoutPhase {
+  if (run.finishedAt) return "done";
+  if (run.stalled) return "stalled";
+  if (run.planned === null) return "starting";
+  if (run.searched < run.planned) return "searching";
+  return "scoring";
+}

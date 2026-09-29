@@ -15,6 +15,7 @@ import { Route as SearchesRouteImport } from './routes/searches'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiBriefRouteImport } from './routes/api/brief'
 import { Route as ApiFeedRouteImport } from './routes/api/feed'
+import { Route as ApiRefreshRouteImport } from './routes/api/refresh'
 import { Route as ApiSearchesRouteImport } from './routes/api/searches'
 import { Route as ApiStatusRouteImport } from './routes/api/status'
 import { Route as ApiAgentSplatRouteImport } from './routes/api/agent/$'
@@ -66,6 +67,11 @@ const ApiBriefRoute = ApiBriefRouteImport.update({
 const ApiFeedRoute = ApiFeedRouteImport.update({
   id: '/api/feed',
   path: '/api/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRefreshRoute = ApiRefreshRouteImport.update({
+  id: '/api/refresh',
+  path: '/api/refresh',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSearchesRoute = ApiSearchesRouteImport.update({
@@ -189,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/api/$': typeof ApiSplatRoute
   '/api/brief': typeof ApiBriefRouteWithChildren
   '/api/feed': typeof ApiFeedRouteWithChildren
+  '/api/refresh': typeof ApiRefreshRoute
   '/api/searches': typeof ApiSearchesRouteWithChildren
   '/api/status': typeof ApiStatusRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
@@ -219,6 +226,7 @@ export interface FileRoutesByTo {
   '/api/$': typeof ApiSplatRoute
   '/api/brief': typeof ApiBriefRouteWithChildren
   '/api/feed': typeof ApiFeedRouteWithChildren
+  '/api/refresh': typeof ApiRefreshRoute
   '/api/searches': typeof ApiSearchesRouteWithChildren
   '/api/status': typeof ApiStatusRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/api/$': typeof ApiSplatRoute
   '/api/brief': typeof ApiBriefRouteWithChildren
   '/api/feed': typeof ApiFeedRouteWithChildren
+  '/api/refresh': typeof ApiRefreshRoute
   '/api/searches': typeof ApiSearchesRouteWithChildren
   '/api/status': typeof ApiStatusRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/api/$'
     | '/api/brief'
     | '/api/feed'
+    | '/api/refresh'
     | '/api/searches'
     | '/api/status'
     | '/api/agent/$'
@@ -312,6 +322,7 @@ export interface FileRouteTypes {
     | '/api/$'
     | '/api/brief'
     | '/api/feed'
+    | '/api/refresh'
     | '/api/searches'
     | '/api/status'
     | '/api/agent/$'
@@ -342,6 +353,7 @@ export interface FileRouteTypes {
     | '/api/$'
     | '/api/brief'
     | '/api/feed'
+    | '/api/refresh'
     | '/api/searches'
     | '/api/status'
     | '/api/agent/$'
@@ -373,6 +385,7 @@ export interface RootRouteChildren {
   ApiSplatRoute: typeof ApiSplatRoute
   ApiBriefRoute: typeof ApiBriefRouteWithChildren
   ApiFeedRoute: typeof ApiFeedRouteWithChildren
+  ApiRefreshRoute: typeof ApiRefreshRoute
   ApiSearchesRoute: typeof ApiSearchesRouteWithChildren
   ApiStatusRoute: typeof ApiStatusRoute
   ApiAgentSplatRoute: typeof ApiAgentSplatRoute
@@ -430,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/api/feed'
       fullPath: '/api/feed'
       preLoaderRoute: typeof ApiFeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/refresh': {
+      id: '/api/refresh'
+      path: '/api/refresh'
+      fullPath: '/api/refresh'
+      preLoaderRoute: typeof ApiRefreshRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/searches': {
@@ -673,6 +693,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSplatRoute: ApiSplatRoute,
   ApiBriefRoute: ApiBriefRouteWithChildren,
   ApiFeedRoute: ApiFeedRouteWithChildren,
+  ApiRefreshRoute: ApiRefreshRoute,
   ApiSearchesRoute: ApiSearchesRouteWithChildren,
   ApiStatusRoute: ApiStatusRoute,
   ApiAgentSplatRoute: ApiAgentSplatRoute,

@@ -11,6 +11,7 @@ import { ArrowUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { type CardActions, openReply, PostCard } from "@/components/PostCard";
+import { RefreshControl } from "@/components/RefreshControl";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dismiss, fetchFeed, fetchNewCount, markOpened, putFeedback, undoDismiss, withdrawFeedback } from "@/lib/api";
@@ -165,6 +166,9 @@ function Feed() {
             </Link>
           ))}
         </nav>
+        <span className="ml-auto min-w-0">
+          <RefreshControl />
+        </span>
       </div>
 
       {newCount > 0 ? (

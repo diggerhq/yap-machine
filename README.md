@@ -73,17 +73,13 @@ sample for a fictional product; make your own copy and load that.
 npm run seed:brief -- brief.example.md
 ```
 
-Start a scout run whenever you want fresh posts:
-
-```bash
-npm run scout:once
-```
-
-It searches X for every search whose interval has passed, stores new posts
-and scores them; they appear at http://localhost:3300 as they are scored.
-Follow the run with the `npx opencomputer session attach <id>` command it
-prints. In development the five-minute schedule does not recur on its own;
-in production it does.
+Then press **Refresh** in the feed. It starts a scout run: the agent searches
+X, stores new posts and scores them, and the button shows where it is
+(searching, then scoring) until the feed reloads, usually within a minute or
+two. A manual refresh runs every search not run in the last five minutes,
+whatever its interval; the daily budget still applies. In production the
+agent also runs on its own every five minutes, and the feed offers what it
+finds as "N new". `npm run scout:once` starts the same run from the terminal.
 
 After changing the scoring instructions or your brief, `npm run rejudge`
 clears the scores of posts you haven't handled, and the next `scout:once`

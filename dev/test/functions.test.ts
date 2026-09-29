@@ -23,6 +23,7 @@ const work = (now = T0, session = "scout-1") =>
 const claim = (id: string, now = T0, cap = 25) =>
   db.rpc<{ error?: string; query?: string; sinceId?: string | null }>("claim_search", {
     p_search_id: id,
+    p_session_id: "scout-1",
     p_cap_usd: cap,
     p_now: now,
   });
@@ -827,5 +828,40 @@ describe("after the first live runs", () => {
       p_now: T0,
     });
     expect(leased.posts.map((p) => p.id)).toEqual(["1", "4"]);
+  });
+});
+
+describe("Refresh", () => {
+  it("works every search not run in five minutes on a manual run, and reports progress", async () => {
+    await seedBrief(db);
+    await seedSearch(db, "fast", 5);
+    await seedSearch(db, "slow", 60);
+    await seedSearch(db, "fresh", 60);
+    await db.query("update searches set last_run_at = $1 where id = 'slow'", [at(-10)]);
+    await db.query("update searches set last_run_at = $1 where id = 'fresh'", [at(-2)]);
+    // Scheduled: only the five-minute search is due.
+    expect((await work(T0, "scheduled")).searches.map((x) => x.id)).toEqual(["fast"]);
+    // Manual: the hourly search last run ten minutes ago is due too.
+    await db.rpc("begin_manual_scout", { p_session_id: "manual-1", p_now: T0 });
+    expect((await work(T0, "manual-1")).searches.map((x) => x.id)).toEqual(["fast", "slow"]);
+    const claimAs = (id: string, session: string) =>
+      db.rpc("claim_search", { p_search_id: id, p_session_id: session, p_cap_usd: 25, p_now: T0 });
+    expect(await claimAs("fresh", "manual-1")).toEqual({ error: "not_due" });
+    expect(await claimAs("slow", "scheduled")).toEqual({ error: "not_due" });
+    expect(await claimAs("slow", "manual-1")).toMatchObject({ query: "slow -is:retweet" });
+    await store(db, "slow", [candidate("1"), candidate("2")], T0, "manual-1");
+    await judge(db, [{ postId: "1", score: 70 }], T0, "manual-1");
+    expect(await db.rpc("scout_progress", { p_now: T0 })).toMatchObject({
+      sessionId: "manual-1",
+      manual: true,
+      planned: 2,
+      searched: 1,
+      stored: 2,
+      judged: 1,
+      waiting: 1,
+      finishedAt: null,
+      stalled: false,
+    });
+    expect(await db.rpc("scout_progress", { p_now: at(16) })).toMatchObject({ stalled: true });
   });
 });

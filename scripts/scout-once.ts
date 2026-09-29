@@ -4,6 +4,7 @@
 // API or CLI, and the CLI's session command sends no payload, so this uses
 // the SDK with OPENCOMPUTER_API_KEY from .env.local.
 import { OpenComputer } from "@opencomputer/sdk/agents";
+import { SCOUT_INPUT } from "../src/server/scout";
 import { appEnv } from "./local-env";
 
 const env = appEnv();
@@ -20,7 +21,7 @@ const oc = new OpenComputer({ apiKey: env.OPENCOMPUTER_API_KEY, baseUrl: `${orig
 const key = `scout-once-${new Date().toISOString()}`;
 const { session } = await oc.sessions.create({ agentId: env.YAP_AGENT_REF, source: "api" }, { idempotencyKey: key });
 const receipt = await oc.sessions.turns.send(session.id, {
-  input: "Work the searches that are due.",
+  input: SCOUT_INPUT,
   payload: { role: "scout" },
   idempotencyKey: `${key}/start`,
 });

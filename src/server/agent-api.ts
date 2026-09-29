@@ -60,7 +60,12 @@ export async function claim(req: Request, searchId: string, w: Wiring): Promise<
   const parsed = (await body(req)) as { sessionId?: unknown } | undefined;
   if (typeof parsed?.sessionId !== "string" || !parsed.sessionId) return invalid("sessionId is required");
   return answer(
-    await w.db.rpc("claim_search", { p_search_id: searchId, p_cap_usd: w.config.dailyCapUsd, p_now: iso(w) }),
+    await w.db.rpc("claim_search", {
+      p_search_id: searchId,
+      p_session_id: parsed.sessionId,
+      p_cap_usd: w.config.dailyCapUsd,
+      p_now: iso(w),
+    }),
   );
 }
 

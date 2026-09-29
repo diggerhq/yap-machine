@@ -420,6 +420,33 @@ describe("a learning run through the agent routes", () => {
   });
 });
 
+describe("Refresh", () => {
+  beforeEach(async () => {
+    await seedBrief(db);
+  });
+
+  it("starts a manual scout run, refuses a second while it works, and reports progress", async () => {
+    const started = await ownerCall("POST", "/api/refresh");
+    expect(started.status).toBe(202);
+    expect(calls.sent).toEqual([
+      expect.objectContaining({ input: "Work the searches that are due.", payload: { role: "scout" } }),
+    ]);
+    const run = (await json<{ run: { sessionId: string; manual: boolean } }>(started)).run;
+    expect(run).toMatchObject({ sessionId: "learn-session-1", manual: true });
+    expect((await ownerCall("POST", "/api/refresh")).status).toBe(409);
+    expect((await ownerCall("POST", "/api/refresh", undefined, null)).status).toBe(403);
+    const progress = await json<{ run: { planned: number | null } }>(await ownerCall("GET", "/api/refresh"));
+    expect(progress.run.planned).toBeNull();
+  });
+
+  it("says what is missing without an API key", async () => {
+    setup({ client: null, config: { ...CONFIG, oc: undefined } });
+    const response = await ownerCall("POST", "/api/refresh");
+    expect(response.status).toBe(409);
+    expect((await json<{ error: { code: string } }>(response)).error.code).toBe("not_configured");
+  });
+});
+
 describe("the owner's routes", () => {
   beforeEach(async () => {
     await seedBrief(db);

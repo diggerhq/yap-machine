@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { FeedPage, Filter } from "../shared/feed";
 import { isRefusal } from "./db";
 import { answer, problem, refused } from "./problem";
+import { SCOUT_INPUT } from "./scout";
 import type { Wiring } from "./wiring";
 
 const iso = (w: Wiring) => new Date(w.now()).toISOString();
@@ -190,4 +191,38 @@ export async function status(w: Wiring): Promise<Response> {
     p_now: iso(w),
   });
   return isRefusal(result) ? refused(result) : Response.json({ ...result, threshold: w.config.threshold });
+}
+
+/** GET /api/refresh: the latest scout run and how far it has got. */
+export async function refreshProgress(w: Wiring): Promise<Response> {
+  return answer({ run: await w.db.rpc("scout_progress", { p_now: iso(w) }) });
+}
+
+/**
+ * POST /api/refresh: starts a scout run now, the way the schedule does, as a
+ * manual run (every search not run in the last five minutes). Refused while
+ * another run is in flight, with that run's progress.
+ */
+export async function refresh(w: Wiring): Promise<Response> {
+  if (!w.client || !w.config.oc) {
+    return problem(409, "not_configured", "Set OPENCOMPUTER_API_KEY in .env.local to start scout runs from the app.");
+  }
+  const current = await w.db.rpc<{ finishedAt: string | null; stalled: boolean } | null>("scout_progress", {
+    p_now: iso(w),
+  });
+  if (current && !current.finishedAt && !current.stalled) {
+    return problem(409, "run_in_flight", "A scout run is already working.", { run: current });
+  }
+  const key = `refresh-${iso(w)}`;
+  const created = await w.client.sessions.create(
+    { agentId: w.config.oc.agentRef, source: "api" },
+    { idempotencyKey: key },
+  );
+  await w.db.rpc("begin_manual_scout", { p_session_id: created.session.id, p_now: iso(w) });
+  await w.client.sessions.turns.send(created.session.id, {
+    input: SCOUT_INPUT,
+    payload: { role: "scout" },
+    idempotencyKey: `${key}/start`,
+  });
+  return answer({ run: await w.db.rpc("scout_progress", { p_now: iso(w) }) }, 202);
 }

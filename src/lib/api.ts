@@ -1,6 +1,6 @@
 // The browser's view of the app's routes. Everything goes through here, to
 // the app's own origin; the browser never talks to Supabase or OpenComputer.
-import type { BriefState, BriefVersion, FeedPage, Filter, Search, Status, Verdict } from "@/shared/feed";
+import type { BriefState, BriefVersion, FeedPage, Filter, ScoutRun, Search, Status, Verdict } from "@/shared/feed";
 import type { Problem } from "@/shared/problem";
 
 export class ApiError extends Error {
@@ -77,3 +77,7 @@ export const restoreVersion = (id: number) =>
   call<{ versionId: number }>("POST", `/api/brief/versions/${String(id)}/restore`);
 
 export const fetchStatus = () => call<Status>("GET", "/api/status");
+
+export const fetchRefresh = () => call<{ run: ScoutRun | null }>("GET", "/api/refresh");
+
+export const startRefresh = () => call<{ run: ScoutRun | null }>("POST", "/api/refresh");
