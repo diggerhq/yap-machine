@@ -51,6 +51,7 @@
     "test:e2e": "playwright test --config dev/playwright.config.ts",
     "check": "npm run typecheck && npm run lint && npm test && npm run build",
     "scout:once": "tsx scripts/scout-once.ts",
+    "avatars": "tsx scripts/avatars.ts",
     "seed:brief": "tsx scripts/seed-brief.ts",
     "doctor": "cd opencomputer && opencomputer doctor",
     "deploy:agent": "cd opencomputer && opencomputer deploy --alias development"

@@ -769,3 +769,28 @@ describe("Done", () => {
     expect((await page("open")).items.map((i) => i.id)).toEqual(["1", "2"]);
   });
 });
+
+describe("avatar backfill", () => {
+  it("lists authors in the window without a picture, fills them in, and counts the lookup", async () => {
+    await seedSearch(db, "s");
+    await store(db, "s", [
+      candidate("1"),
+      candidate("2", { authorAvatar: "https://pbs.twimg.com/a_bigger.jpg" }),
+      candidate("3", { createdAt: at(-49 * 60) }),
+    ]);
+    expect(await db.rpc("authors_without_avatar", { p_now: T0 })).toEqual(["91"]);
+    const result = await db.rpc("set_author_avatars", {
+      p_avatars: [
+        { authorId: "91", avatar: "https://pbs.twimg.com/b_bigger.jpg" },
+        { authorId: "93", avatar: "https://evil.example/x.jpg" },
+      ],
+      p_user_reads: 2,
+      p_now: T0,
+    });
+    expect(result).toEqual({ posts: 1 });
+    expect(await db.query("select author_avatar from posts where id = '1'")).toEqual([
+      { author_avatar: "https://pbs.twimg.com/b_bigger.jpg" },
+    ]);
+    expect(await db.query("select user_reads from usage_daily")).toEqual([{ user_reads: 5 }]);
+  });
+});

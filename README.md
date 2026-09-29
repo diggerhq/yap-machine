@@ -85,6 +85,10 @@ Follow the run with the `npx opencomputer session attach <id>` command it
 prints. In development the five-minute schedule does not recur on its own;
 in production it does.
 
+Posts stored before the feed kept profile pictures show the author's
+initial; `npm run avatars` looks those authors up on X ($0.01 each, counted
+in today's spend) and fills them in.
+
 The local database lives in `dev/local/.pglite`; delete that directory to
 start over. To use a hosted Supabase project instead, apply
 `supabase/migrations/` to it and set `SUPABASE_URL` and `SUPABASE_SECRET_KEY`
