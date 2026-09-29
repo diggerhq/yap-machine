@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BriefRouteImport } from './routes/brief'
+import { Route as SearchesRouteImport } from './routes/searches'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiBriefRouteImport } from './routes/api/brief'
 import { Route as ApiFeedRouteImport } from './routes/api/feed'
@@ -38,6 +40,16 @@ import { Route as ApiBriefVersionsIdRestoreRouteImport } from './routes/api/brie
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BriefRoute = BriefRouteImport.update({
+  id: '/brief',
+  path: '/brief',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchesRoute = SearchesRouteImport.update({
+  id: '/searches',
+  path: '/searches',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
@@ -166,6 +178,8 @@ const ApiBriefVersionsIdRestoreRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/brief': typeof BriefRoute
+  '/searches': typeof SearchesRoute
   '/api/$': typeof ApiSplatRoute
   '/api/brief': typeof ApiBriefRouteWithChildren
   '/api/feed': typeof ApiFeedRouteWithChildren
@@ -193,6 +207,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/brief': typeof BriefRoute
+  '/searches': typeof SearchesRoute
   '/api/$': typeof ApiSplatRoute
   '/api/brief': typeof ApiBriefRouteWithChildren
   '/api/feed': typeof ApiFeedRouteWithChildren
@@ -221,6 +237,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/brief': typeof BriefRoute
+  '/searches': typeof SearchesRoute
   '/api/$': typeof ApiSplatRoute
   '/api/brief': typeof ApiBriefRouteWithChildren
   '/api/feed': typeof ApiFeedRouteWithChildren
@@ -250,6 +268,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/brief'
+    | '/searches'
     | '/api/$'
     | '/api/brief'
     | '/api/feed'
@@ -277,6 +297,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/brief'
+    | '/searches'
     | '/api/$'
     | '/api/brief'
     | '/api/feed'
@@ -304,6 +326,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/brief'
+    | '/searches'
     | '/api/$'
     | '/api/brief'
     | '/api/feed'
@@ -332,6 +356,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BriefRoute: typeof BriefRoute
+  SearchesRoute: typeof SearchesRoute
   ApiSplatRoute: typeof ApiSplatRoute
   ApiBriefRoute: typeof ApiBriefRouteWithChildren
   ApiFeedRoute: typeof ApiFeedRouteWithChildren
@@ -356,6 +382,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brief': {
+      id: '/brief'
+      path: '/brief'
+      fullPath: '/brief'
+      preLoaderRoute: typeof BriefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/searches': {
+      id: '/searches'
+      path: '/searches'
+      fullPath: '/searches'
+      preLoaderRoute: typeof SearchesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/$': {
@@ -608,6 +648,8 @@ const ApiAgentLearningRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BriefRoute: BriefRoute,
+  SearchesRoute: SearchesRoute,
   ApiSplatRoute: ApiSplatRoute,
   ApiBriefRoute: ApiBriefRouteWithChildren,
   ApiFeedRoute: ApiFeedRouteWithChildren,

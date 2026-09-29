@@ -14,3 +14,20 @@ describe("the migration", () => {
     expect(rls).toEqual([]);
   });
 });
+
+describe("the seed", () => {
+  it("loads and covers every feed filter", async () => {
+    const { readFileSync } = await import("node:fs");
+    const db = await freshDb();
+    await db.pg.exec(readFileSync("supabase/seed.sql", "utf8"));
+    for (const filter of ["open", "filtered", "handled"]) {
+      const page = await db.rpc<{ items: unknown[] }>("feed_page", {
+        p_filter: filter,
+        p_threshold: 60,
+        p_cursor: null,
+        p_limit: 50,
+      });
+      expect(page.items.length, filter).toBeGreaterThan(0);
+    }
+  });
+});

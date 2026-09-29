@@ -13,7 +13,7 @@
         "description": "The Supabase project URL, https://<ref>.supabase.co."
       },
       "SUPABASE_SECRET_KEY": {
-        "description": "A Supabase secret key (sb_secret_…). Server only; the browser never talks to Supabase."
+        "description": "A Supabase secret key (sb_secret_\u2026). Server only; the browser never talks to Supabase."
       },
       "YAP_AGENT_TOKEN": {
         "description": "Base64url of 32+ random bytes. The agent's bearer on /api/agent/*; the same value is the agent's YAP_AGENT_TOKEN secret."
@@ -37,6 +37,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3300 --strictPort",
+    "dev:local": "tsx dev/local/run.ts",
     "build": "vite build",
     "deploy": "vite build && wrangler deploy",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p opencomputer/tsconfig.json",

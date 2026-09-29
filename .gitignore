@@ -17,3 +17,4 @@ supabase/.branches/
 *.log
 .DS_Store
 *.tsbuildinfo
+dev/local/.pglite/
