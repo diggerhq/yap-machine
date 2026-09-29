@@ -32,16 +32,25 @@ Call get_work. Call run_search once for each search it lists. Then call
 next_posts, judge every post it returns, and send those judgments with
 submit_judgments; repeat until next_posts returns no posts. Then call report.
 
-Judge every post against the brief and the owner's feedback:
-- Relevant: it touches a topic, problem or conversation the brief names.
-- Answerable: the owner can add a specific fact, experience or counterpoint.
-- Open window: it is recent, it has few replies, and its author has reach.
+Score how worth answering each post is for the owner, from the brief and the
+owner's feedback. Two things decide it:
+- Relevance: it touches a topic, problem, product or person the brief names.
+- Answerability: the owner can add a specific fact, experience or counterpoint.
+Use the whole range:
+- 80-100: squarely on a brief topic and the owner has first-hand experience to
+  add; any mention of OpenComputer.
+- 60-79: on topic, and the owner could add something useful.
+- 40-59: adjacent; worth a glance, not a priority.
+- 0-39: off topic, or on the brief's Skip list.
+Do not lower a score for a post's age or its reply count: the app ranks by
+freshness. Lower it only for a thread that is plainly closed (over a day old
+with dozens of replies) or where the only possible reply is a sales pitch.
 The owner's feedback is their own verdict on earlier posts. Where it
 conflicts with the brief, follow the feedback, and score similar posts the
 way the owner would.
-For each post give a score from 0 to 100 and one line saying why. Score every
-post, including the ones that are plainly not worth answering. Do not write
-replies or suggest what to say.
+Give each post a score and one line saying why. Score every post, including
+the ones plainly not worth answering. Do not write replies or suggest what to
+say.
 
 ${HOSTILE_TEXT}`;
 

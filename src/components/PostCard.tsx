@@ -1,20 +1,33 @@
 // One post in the feed, laid out for reading: the author (avatar, name,
 // handle, age) and then the text, large, with nothing competing for the eye.
 // Replies and quotes carry the post they answer, muted above the text. The
-// actions are icons (Open on X, Not relevant or Relevant, Done) with their
+// actions are icons (Not relevant or Relevant, Done, Reply, Open on X) with their
 // names and keys in tooltips. Why the agent surfaced the post stays folded
 // behind a small toggle. A Not relevant or Relevant mark takes an optional
 // one-line note: Enter saves it, Esc saves without it. Done sets a post aside
 // with no verdict, so nothing is learned from it. A handled card shows its
 // verdict and note, or Done, with Undo until a learning run has folded it in.
-import { ArrowUpRight, Check, Info, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ArrowUpRight, Check, Info, MessageCircle, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
 import { forwardRef, type ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ago, compact } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { type FeedItem, type Filter, postUrl, type Verdict } from "@/shared/feed";
+import { type FeedItem, type Filter, postUrl, replyUrl, type Verdict } from "@/shared/feed";
+
+/** Opens X's reply composer for a post in a small window over the app. */
+export function openReply(item: FeedItem): void {
+  const width = 600;
+  const height = 680;
+  const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);
+  const top = Math.max(0, window.screenY + (window.outerHeight - height) / 3);
+  window.open(
+    replyUrl(item),
+    "yap-reply",
+    `popup,width=${String(width)},height=${String(height)},left=${String(left)},top=${String(top)}`,
+  );
+}
 
 export interface CardActions {
   open(item: FeedItem): void;
@@ -113,6 +126,16 @@ export const PostCard = forwardRef<
               </Action>
               <Action label="Done: set aside, nothing learned" hotkey="d" onClick={() => actions.dismiss(item)}>
                 <Check />
+              </Action>
+              <Action
+                label="Reply"
+                hotkey="c"
+                onClick={() => {
+                  openReply(item);
+                  actions.open(item);
+                }}
+              >
+                <MessageCircle />
               </Action>
               <Action label="Open on X" hotkey="o" href={postUrl(item)} onClick={() => actions.open(item)}>
                 <ArrowUpRight />

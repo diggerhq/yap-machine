@@ -101,3 +101,13 @@ export interface Status {
 export function postUrl(item: Pick<FeedItem, "id" | "authorHandle">): string {
   return `https://x.com/${encodeURIComponent(item.authorHandle)}/status/${encodeURIComponent(item.id)}`;
 }
+
+/**
+ * X's reply composer for a post, in a small window over the app. X cannot be
+ * framed and its API accepts a reply only when the author summoned you, so a
+ * web intent is the closest thing to replying inline; you still write and
+ * post it yourself, as yourself.
+ */
+export function replyUrl(item: Pick<FeedItem, "id">): string {
+  return `https://x.com/intent/tweet?in_reply_to=${encodeURIComponent(item.id)}`;
+}

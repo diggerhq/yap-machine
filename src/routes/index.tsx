@@ -3,13 +3,14 @@
 // there is no text input for X anywhere. The list polls for newly judged
 // Open posts every 20 seconds and offers them as "N new" rather than moving
 // the page under the reader. Keyboard: j/k move, o opens on X, x marks Not
-// relevant, r marks Relevant, d marks Done (set aside, nothing learned).
+// relevant, r marks Relevant, d marks Done (set aside, nothing learned), c
+// opens X's reply composer in a small window.
 import { type InfiniteData, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { type CardActions, PostCard } from "@/components/PostCard";
+import { type CardActions, openReply, PostCard } from "@/components/PostCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dismiss, fetchFeed, fetchNewCount, markOpened, putFeedback, undoDismiss, withdrawFeedback } from "@/lib/api";
@@ -133,6 +134,10 @@ function Feed() {
       } else if (event.key === "r" && filter === "filtered") {
         event.preventDefault();
         setNoting({ id: item.id, verdict: "relevant" });
+      } else if (event.key === "c" && filter !== "handled") {
+        event.preventDefault();
+        openReply(item);
+        actions.open(item);
       } else if (event.key === "d" && filter !== "handled") {
         event.preventDefault();
         actions.dismiss(item);

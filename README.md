@@ -85,6 +85,10 @@ Follow the run with the `npx opencomputer session attach <id>` command it
 prints. In development the five-minute schedule does not recur on its own;
 in production it does.
 
+After changing the scoring instructions or your brief, `npm run rejudge`
+clears the scores of posts you haven't handled, and the next `scout:once`
+scores them again (model time only; X isn't queried again).
+
 Posts stored before the feed kept profile pictures show the author's
 initial; `npm run avatars` looks those authors up on X ($0.01 each, counted
 in today's spend) and fills them in.
@@ -112,8 +116,12 @@ Your feed, brief and searches are served on `localhost` alone.
   simply want to skip.
 - **Why it's here** (ⓘ) shows the agent's one-line reason, folded away by
   default.
-- **Keys:** `j`/`k` move, `o` opens on X, `x` marks Not relevant, `r` marks
-  Relevant, `d` marks Done.
+- **Reply** (💬) opens X's reply composer for the post in a small window over
+  the app; you write and post it there, as yourself. X can't be embedded, and
+  its API accepts replies only from accounts the author mentioned, so this is
+  as inline as replying gets.
+- **Keys:** `j`/`k` move, `c` replies, `o` opens on X, `x` marks Not relevant,
+  `r` marks Relevant, `d` marks Done.
 - **Searches** are saved X queries, each with its own interval. Edit them in
   the app; there is nothing to deploy.
 - **Brief** is your sections, which only you edit, plus the learned rules,

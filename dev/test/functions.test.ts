@@ -794,3 +794,38 @@ describe("avatar backfill", () => {
     expect(await db.query("select user_reads from usage_daily")).toEqual([{ user_reads: 5 }]);
   });
 });
+
+describe("after the first live runs", () => {
+  it("stores a post that appears twice in one batch once", async () => {
+    await seedBrief(db);
+    await seedSearch(db, "s");
+    expect(await store(db, "s", [candidate("1"), candidate("2"), candidate("1")])).toEqual({
+      fetched: 2,
+      stored: 2,
+      alreadyKnown: 0,
+    });
+  });
+
+  it("clears the scores of unhandled posts in the window, and nothing else", async () => {
+    await seedBrief(db);
+    await seedSearch(db, "s");
+    await store(
+      db,
+      "s",
+      ["1", "2", "3", "4"].map((id) => candidate(id)),
+    );
+    await judge(
+      db,
+      ["1", "2", "3", "4"].map((postId) => ({ postId, score: 50 })),
+    );
+    await db.rpc("put_feedback", { p_post_id: "2", p_verdict: "relevant", p_note: null, p_now: T0 });
+    await db.rpc("mark_opened", { p_post_id: "3", p_now: T0 });
+    expect(await db.rpc("reset_judgments", { p_now: T0 })).toEqual({ reset: 2 });
+    const leased = await db.rpc<{ posts: { id: string }[] }>("lease_posts", {
+      p_session_id: "x",
+      p_limit: 25,
+      p_now: T0,
+    });
+    expect(leased.posts.map((p) => p.id)).toEqual(["1", "4"]);
+  });
+});

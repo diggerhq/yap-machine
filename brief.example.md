@@ -45,10 +45,11 @@ substance; never disparage; compare responsibilities, not feature lists.
 
 ## Find
 
-A post is worth answering when it is inside a topic above, the owner can add
-a concrete fact or experience the thread lacks, and the post is recent with
-few replies for its author's reach. Score highest: direct questions about
-hosting or running agents, and requests for tool recommendations.
+A post is worth answering when it is inside a topic above and the owner can
+add a concrete fact or experience the thread lacks. The app ranks fresh posts
+first, so age and reply count do not lower a score. Score highest: direct
+questions about hosting or running agents, and requests for tool
+recommendations.
 
 ## Skip
 

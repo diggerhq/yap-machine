@@ -68,7 +68,8 @@ export const runSearch = defineTool({
         sessionId,
         searchId,
         newestId: pages[0]?.newestId ?? null,
-        posts: pages.flatMap((p) => p.posts),
+        // X can return a post on both pages; send each once.
+        posts: [...new Map(pages.flatMap((p) => p.posts).map((post) => [post.id, post])).values()],
         postReads: pages.reduce((sum, p) => sum + p.postReads, 0),
         userReads: pages.reduce((sum, p) => sum + p.userReads, 0),
       },

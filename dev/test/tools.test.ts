@@ -200,6 +200,21 @@ describe("a scout run through the tools", () => {
     expect(xRequests).toEqual([]);
   });
 
+  it("sends a post X returned on both pages once", async () => {
+    const page = (id: string, token: string | null) => ({
+      data: [{ id, text: "post", author_id: "7001", created_at: "2026-09-29T11:59:00.000Z" }],
+      includes: { users: [{ id: "7001", username: "a", name: "A" }] },
+      meta: { newest_id: id, ...(token ? { next_token: token } : {}) },
+    });
+    xAnswer = (url) =>
+      new Response(
+        JSON.stringify(
+          url.searchParams.get("next_token") ? page("1860000000000000001", null) : page("1860000000000000001", "p2"),
+        ),
+      );
+    expect(await run(runSearch, { searchId: "mentions" })).toMatchObject({ fetched: 1, stored: 1 });
+  });
+
   it("bounds a search's overshoot of the cap to two pages", async () => {
     // Two full pages cost at most 2 × (100 + 100 includes) posts and 2 × 200
     // users: (400 × 0.005) + (400 × 0.010) = $6 in the worst case, $2 for
