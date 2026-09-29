@@ -134,7 +134,7 @@ fixed domain every free ngrok account gets.
 | `OPENCOMPUTER_API_KEY` | `.env.local` | yes | An API key for your OpenComputer organization, from the dashboard. The app uses it to start the agent's runs. |
 | `YAP_PUBLIC_ORIGIN` | `.env.local` | yes | Your ngrok domain, e.g. `https://your-words.ngrok-free.app`: the address the agent reaches the app at. |
 | `YAP_AGENT_TOKEN` | both `.env.local` files | yes | Written by `npm run setup`. The agent presents it to the app; you don't need to set it. |
-| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | `.env.local` | no | A hosted Supabase project instead of the local database. |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | `.env.local` | no | Only to use a Supabase project; without them the app runs its own local database. See [The app](#the-app). |
 | `YAP_SCORE_THRESHOLD` | `.env.local` | no | The score a post needs to reach Open. Default 60. |
 
 `npm run secrets` uploads `X_BEARER_TOKEN` and `YAP_AGENT_TOKEN` to
@@ -227,12 +227,18 @@ every search not run in the last five minutes.
 - **The app** (`src/`) is TanStack Start, built for Cloudflare Workers. The
   browser talks only to the app's routes; the agent reaches `/api/agent/*`
   with its token. Through the tunnel, only those routes answer.
-- **The database** (`supabase/migrations/`) is Postgres. Every write is one
-  function, so each is a single transaction. Locally it runs in PGlite
-  (Postgres compiled to WebAssembly) under `dev/local/.pglite`, so you need
-  no database account; delete that directory to start over. To use a hosted
-  Supabase project, apply `supabase/migrations/` and set `SUPABASE_URL` and
-  `SUPABASE_SECRET_KEY` in `.env.local`.
+- **The database** is Postgres, and the app is written for Supabase: it
+  talks to the database through the Supabase client, one Postgres function
+  per operation, and the schema lives in `supabase/migrations/`. You don't
+  need a Supabase project to run it:
+  - **By default (no Supabase):** `npm run dev` runs the same schema in
+    [PGlite](https://pglite.dev), Postgres compiled to WebAssembly, inside
+    the dev process, behind a small stand-in for Supabase's endpoint. Data
+    lives in `dev/local/.pglite`; delete that directory to start over.
+  - **With Supabase:** run the files in `supabase/migrations/` in name order
+    on your project (for example in its SQL editor), then set `SUPABASE_URL`
+    and `SUPABASE_SECRET_KEY` in `.env.local`. `npm run dev` then uses that
+    project instead of the local database.
 
 `AGENTS.md` maps the code in more detail.
 
