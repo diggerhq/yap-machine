@@ -1,0 +1,244 @@
+/* Workbench design tokens: ink on paper, one accent, neutral surfaces.
+ *
+ * Plain CSS custom properties, no framework directives, so the same file
+ * serves the application (src/styles.css maps these into Tailwind) and
+ * the static mockups under dev/design/mockups. Light is the base palette on
+ * :root; `.dark` overrides it. Every visual value in the product comes from
+ * here or from Tailwind's own scale: colors, radii, type, focus ring, motion
+ * and the status palette live here; spacing, control heights and container
+ * widths are Tailwind's 4 px scale and shadcn's size variants (controls are
+ * h-8, h-7 or h-6; rows h-16; card inset p-5; gutters px-4 and px-8; one
+ * container, max-w-6xl). The spacing rhythm is three steps, written in
+ * dev/design/screens.md: 8 within a group, 12 heading to panel, 16 between
+ * groups in a card, 32 to 40 between sections. There is one sizing system,
+ * not two, and dev/e2e/measure.spec.ts proves it. Nothing is typed at a call
+ * site.
+ *
+ * Colors are OKLCH. `node dev/design/contrast.mjs` recomputes the WCAG 2 ratios
+ * from this file. Text pairs must stay at or above 4.5:1 in both themes and
+ * status dots at or above 3:1 against the page (dots never carry meaning
+ * alone; the label beside them does). Ratios at the time of writing:
+ *
+ *   pair                              light   dark
+ *   foreground / background           17.34   15.57
+ *   muted-foreground / background      5.75    7.16
+ *   muted-foreground / muted           5.26    5.99
+ *   accent / background                6.42    7.66
+ *   accent-foreground / accent         6.70    7.66
+ *   destructive / background           6.32    6.64
+ *   code-foreground / code            13.67   14.78
+ *   neutral text / tone bg             6.53    7.19
+ *   attention text / tone bg           6.31    8.56
+ *   working text / tone bg             5.79    7.23
+ *   ready text / tone bg               6.26    8.62
+ *   failed text / tone bg              5.78    6.73
+ *   muted text / tone bg               4.91    4.87
+ *   neutral dot / background           3.10    4.85
+ *   attention dot / background         3.07    9.35
+ *   working dot / background           3.86    7.06
+ *   ready dot / background             3.54    8.21
+ *   failed dot / background            3.84    6.57
+ *
+ * The muted tone (Archived, Ended) renders no dot, so its dot token is a
+ * hairline marker only and is not held to 3:1.
+ */
+
+:root {
+  /* Type. Inter for everything; Geist Mono only for commands and output. */
+  --font-sans:
+    "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem; /* 12px  captions, timestamps, badge labels */
+  --leading-xs: 1rem;
+  --text-sm: 0.8125rem; /* 13px  row metadata, tool titles, code */
+  --leading-sm: 1.25rem;
+  --text-base: 0.875rem; /* 14px  body, rows, conversation */
+  --leading-base: 1.375rem;
+  --text-md: 1rem; /* 16px  the request, card headings */
+  --leading-md: 1.5rem;
+  --text-lg: 1.125rem; /* 18px  task title on the task page */
+  --leading-lg: 1.625rem;
+  --text-xl: 1.375rem; /* 22px  page heading */
+  --leading-xl: 1.75rem;
+
+  /* Two weights: regular everywhere, medium for one emphasis per context. */
+  --weight-regular: 400;
+  --weight-medium: 500;
+
+  /* Radii: shadcn's family. One base, four steps, the same on cards,
+     inputs, buttons and menus; a control is rounded-lg, a card rounded-xl. */
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Focus ring: two pixels of the accent, offset by two, on every focusable. */
+  --ring-width: 2px;
+  --ring-offset: 2px;
+
+  /* Motion. Two animations, the working dot and the streaming caret; state
+     transitions (hover, focus, expanders, dialogs) run at --duration-fast
+     on --ease-out and stop under prefers-reduced-motion. */
+  --pulse-duration: 1.6s;
+  --caret-duration: 1s;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Layers: dropdown < sticky < backdrop < modal < toast < tooltip. */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-backdrop: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-tooltip: 60;
+
+  /* Elevation: a card sits on the page by a hairline and a soft shadow; a
+     popover floats. */
+  --shadow-card: 0 1px 2px oklch(0.2 0.01 260 / 0.05), 0 1px 1px oklch(0.2 0.01 260 / 0.03);
+  --shadow-popover: 0 8px 24px oklch(0.2 0.01 260 / 0.12), 0 2px 6px oklch(0.2 0.01 260 / 0.08);
+
+  /* Surfaces and ink. Three neutral layers: the page, the card on it, and
+     the surface a toolbar or panel header sits on; hover is one step of ink
+     mixed into the card. */
+  --background: oklch(0.98 0.003 250);
+  --foreground: oklch(0.2 0.01 260);
+  --card: oklch(1 0 0);
+  --surface: oklch(0.97 0.004 250);
+  --hover: oklch(0.96 0.005 250);
+  --attention-row: oklch(0.985 0.014 85);
+  --card-foreground: oklch(0.2 0.01 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.01 260);
+  --primary: oklch(0.2 0.01 260);
+  --primary-foreground: oklch(0.985 0.002 250);
+  --secondary: oklch(0.955 0.004 250);
+  --secondary-foreground: oklch(0.2 0.01 260);
+  --muted: oklch(0.955 0.004 250);
+  --muted-foreground: oklch(0.5 0.015 260);
+  --accent: oklch(0.48 0.16 260);
+  --accent-foreground: oklch(1 0 0);
+  --accent-soft: oklch(0.95 0.025 260);
+  --destructive: oklch(0.5 0.18 25);
+  --destructive-foreground: oklch(1 0 0);
+  /* One border: shadcn's hairline lightness with the neutral tint, the same
+     on cards, inputs and rows; the ring is the accent, not shadcn's gray,
+     because a focus indicator needs 3:1 against the page. */
+  --border: oklch(0.922 0.005 250);
+  --input: oklch(0.922 0.005 250);
+  --ring: oklch(0.48 0.16 260);
+
+  /* Commands and output */
+  --code: oklch(0.22 0.01 260);
+  --code-foreground: oklch(0.92 0.006 250);
+  --code-border: oklch(0.3 0.01 260);
+
+  /* Tone trios: text, background, dot. */
+  --tone-neutral: oklch(0.45 0.01 260);
+  --tone-neutral-bg: oklch(0.955 0.004 250);
+  --tone-neutral-dot: oklch(0.65 0.01 260);
+  --tone-attention: oklch(0.47 0.11 70);
+  --tone-attention-bg: oklch(0.965 0.035 85);
+  --tone-attention-dot: oklch(0.66 0.15 70);
+  --tone-working: oklch(0.48 0.16 260);
+  --tone-working-bg: oklch(0.95 0.025 260);
+  --tone-working-dot: oklch(0.6 0.18 260);
+  --tone-ready: oklch(0.45 0.12 150);
+  --tone-ready-bg: oklch(0.955 0.04 150);
+  --tone-ready-dot: oklch(0.6 0.15 150);
+  --tone-failed: oklch(0.5 0.18 25);
+  --tone-failed-bg: oklch(0.96 0.025 20);
+  --tone-failed-dot: oklch(0.62 0.2 25);
+  --tone-muted: oklch(0.53 0.01 260);
+  --tone-muted-bg: oklch(0.975 0.002 250);
+  --tone-muted-dot: oklch(0.7 0.008 250);
+
+  /* Status palette: one entry per display state, aliased to a tone. */
+  --status-starting: var(--tone-neutral);
+  --status-starting-bg: var(--tone-neutral-bg);
+  --status-starting-dot: var(--tone-neutral-dot);
+  --status-not-started: var(--tone-attention);
+  --status-not-started-bg: var(--tone-attention-bg);
+  --status-not-started-dot: var(--tone-attention-dot);
+  --status-queued: var(--tone-neutral);
+  --status-queued-bg: var(--tone-neutral-bg);
+  --status-queued-dot: var(--tone-neutral-dot);
+  --status-working: var(--tone-working);
+  --status-working-bg: var(--tone-working-bg);
+  --status-working-dot: var(--tone-working-dot);
+  --status-stopping: var(--tone-attention);
+  --status-stopping-bg: var(--tone-attention-bg);
+  --status-stopping-dot: var(--tone-attention-dot);
+  --status-idle: var(--tone-neutral);
+  --status-idle-bg: var(--tone-neutral-bg);
+  --status-idle-dot: var(--tone-neutral-dot);
+  --status-ready-for-review: var(--tone-ready);
+  --status-ready-for-review-bg: var(--tone-ready-bg);
+  --status-ready-for-review-dot: var(--tone-ready-dot);
+  --status-failed: var(--tone-failed);
+  --status-failed-bg: var(--tone-failed-bg);
+  --status-failed-dot: var(--tone-failed-dot);
+  --status-archived: var(--tone-muted);
+  --status-archived-bg: var(--tone-muted-bg);
+  --status-archived-dot: var(--tone-muted-dot);
+  --status-ended: var(--tone-muted);
+  --status-ended-bg: var(--tone-muted-bg);
+  --status-ended-dot: var(--tone-muted-dot);
+
+  /* Needs attention: a failed, stopped or unanswered task in the list. */
+  --attention: var(--tone-attention);
+  --attention-bg: var(--tone-attention-bg);
+}
+
+.dark {
+  --background: oklch(0.17 0.008 260);
+  --foreground: oklch(0.93 0.006 250);
+  --card: oklch(0.205 0.008 260);
+  --surface: oklch(0.19 0.008 260);
+  --hover: oklch(0.24 0.009 260);
+  --attention-row: oklch(0.225 0.018 80);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 1px 1px oklch(0 0 0 / 0.2);
+  --shadow-popover: 0 8px 24px oklch(0 0 0 / 0.5), 0 2px 6px oklch(0 0 0 / 0.35);
+  --card-foreground: oklch(0.93 0.006 250);
+  --popover: oklch(0.22 0.008 260);
+  --popover-foreground: oklch(0.93 0.006 250);
+  --primary: oklch(0.93 0.006 250);
+  --primary-foreground: oklch(0.17 0.008 260);
+  --secondary: oklch(0.25 0.008 260);
+  --secondary-foreground: oklch(0.93 0.006 250);
+  --muted: oklch(0.25 0.008 260);
+  --muted-foreground: oklch(0.7 0.012 260);
+  --accent: oklch(0.72 0.13 260);
+  --accent-foreground: oklch(0.17 0.008 260);
+  --accent-soft: oklch(0.28 0.05 260);
+  --destructive: oklch(0.7 0.17 25);
+  --destructive-foreground: oklch(0.17 0.008 260);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.72 0.13 260);
+
+  --code: oklch(0.14 0.008 260);
+  --code-foreground: oklch(0.9 0.006 250);
+  --code-border: oklch(0.26 0.008 260);
+
+  --tone-neutral: oklch(0.75 0.01 260);
+  --tone-neutral-bg: oklch(0.25 0.008 260);
+  --tone-neutral-dot: oklch(0.6 0.01 260);
+  --tone-attention: oklch(0.82 0.13 80);
+  --tone-attention-bg: oklch(0.27 0.04 80);
+  --tone-attention-dot: oklch(0.78 0.15 75);
+  --tone-working: oklch(0.78 0.12 260);
+  --tone-working-bg: oklch(0.28 0.05 260);
+  --tone-working-dot: oklch(0.7 0.16 260);
+  --tone-ready: oklch(0.8 0.14 150);
+  --tone-ready-bg: oklch(0.26 0.05 150);
+  --tone-ready-dot: oklch(0.72 0.16 150);
+  --tone-failed: oklch(0.78 0.15 25);
+  --tone-failed-bg: oklch(0.28 0.06 20);
+  --tone-failed-dot: oklch(0.7 0.19 25);
+  --tone-muted: oklch(0.62 0.01 260);
+  --tone-muted-bg: oklch(0.21 0.008 260);
+  --tone-muted-dot: oklch(0.42 0.008 260);
+}

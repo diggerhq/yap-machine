@@ -1,0 +1,197 @@
+/* The application stylesheet. Every visual value comes from tokens.css beside it;
+   this file only maps those tokens into Tailwind names so components use
+   `bg-status-working-bg` or `text-muted-foreground` and never a literal. */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/geist-mono";
+@import "./tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --text-xs: var(--text-xs);
+  --text-xs--line-height: var(--leading-xs);
+  --text-sm: var(--text-sm);
+  --text-sm--line-height: var(--leading-sm);
+  --text-base: var(--text-base);
+  --text-base--line-height: var(--leading-base);
+  --text-md: var(--text-md);
+  --text-md--line-height: var(--leading-md);
+  --text-lg: var(--text-lg);
+  --text-lg--line-height: var(--leading-lg);
+  --text-xl: var(--text-xl);
+  --text-xl--line-height: var(--leading-xl);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --ease-out: var(--ease-out);
+  --shadow-card: var(--shadow-card);
+  --shadow-popover: var(--shadow-popover);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
+  --color-hover: var(--hover);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-border: var(--code-border);
+
+  --color-attention: var(--attention);
+  --color-attention-bg: var(--attention-bg);
+  --color-attention-row: var(--attention-row);
+
+  --color-status-starting: var(--status-starting);
+  --color-status-starting-bg: var(--status-starting-bg);
+  --color-status-starting-dot: var(--status-starting-dot);
+  --color-status-not-started: var(--status-not-started);
+  --color-status-not-started-bg: var(--status-not-started-bg);
+  --color-status-not-started-dot: var(--status-not-started-dot);
+  --color-status-queued: var(--status-queued);
+  --color-status-queued-bg: var(--status-queued-bg);
+  --color-status-queued-dot: var(--status-queued-dot);
+  --color-status-working: var(--status-working);
+  --color-status-working-bg: var(--status-working-bg);
+  --color-status-working-dot: var(--status-working-dot);
+  --color-status-stopping: var(--status-stopping);
+  --color-status-stopping-bg: var(--status-stopping-bg);
+  --color-status-stopping-dot: var(--status-stopping-dot);
+  --color-status-idle: var(--status-idle);
+  --color-status-idle-bg: var(--status-idle-bg);
+  --color-status-idle-dot: var(--status-idle-dot);
+  --color-status-ready-for-review: var(--status-ready-for-review);
+  --color-status-ready-for-review-bg: var(--status-ready-for-review-bg);
+  --color-status-ready-for-review-dot: var(--status-ready-for-review-dot);
+  --color-status-failed: var(--status-failed);
+  --color-status-failed-bg: var(--status-failed-bg);
+  --color-status-failed-dot: var(--status-failed-dot);
+  --color-status-archived: var(--status-archived);
+  --color-status-archived-bg: var(--status-archived-bg);
+  --color-status-archived-dot: var(--status-archived-dot);
+  --color-status-ended: var(--status-ended);
+  --color-status-ended-bg: var(--status-ended-bg);
+  --color-status-ended-dot: var(--status-ended-dot);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    font-optical-sizing: auto;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: var(--ring-width) solid var(--ring);
+    outline-offset: var(--ring-offset);
+  }
+  /* State transitions: color, background, border, opacity, transform. Layout never. */
+  a,
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea,
+  [data-slot="badge"],
+  [data-slot="dropdown-menu-item"] {
+    transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out);
+  }
+}
+
+/* A link that covers its positioned row: the title is the link, the row is its target. */
+.stretched::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* The working dot: the one pulsing element in the product. */
+@keyframes status-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+.status-dot-pulse {
+  animation: status-pulse var(--pulse-duration) ease-in-out infinite;
+}
+
+/* Streaming caret on an assistant message that is still producing text. */
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+/* The caret sits at the end of the message's last block; on the container
+   it would fall on a line of its own below the text. */
+.streaming-caret > :last-child::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 0.15em;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: caret var(--caret-duration) steps(1) infinite;
+}
+
+/* An expander's chevron turns; the output it reveals does not animate its height. */
+.chevron {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+[aria-expanded="true"] > .chevron {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot-pulse,
+  .streaming-caret > :last-child::after {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

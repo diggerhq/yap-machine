@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "yap-machine",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-09-10",
+  // nodejs_compat puts the Worker's secrets on process.env, the one place the
+  // routes read configuration from.
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true }
+  // The client assets are attached by the build. There is deliberately no
+  // KV, D1, queue, Durable Object or cron binding: all state is in Supabase,
+  // and the schedule belongs to the agent (dev/test/stateless.test.ts).
+}
