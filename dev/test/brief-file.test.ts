@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BriefError, parseBrief } from "../../scripts/brief-file";
 
-const SECTIONS = ["Owner", "OpenComputer", "Topics", "Neighbours", "Find", "Skip", "Examples"];
+const SECTIONS = ["Owner", "Product", "Topics", "Neighbours", "Find", "Skip", "Examples"];
 const body = (fill: (name: string) => string) => SECTIONS.map((name) => `## ${name}\n\n${fill(name)}`).join("\n\n");
 const TABLE = `## Searches
 

@@ -1,26 +1,28 @@
 // `npm run scout:once`: start one scout run the way the schedule does, with
-// payload { role: "scout" }. For development, where the schedule does not
-// recur. GAP(G11): Run now has no documented API or CLI, so this uses the
-// SDK. Needs OPENCOMPUTER_API_KEY and YAP_AGENT_REF (environment or .env.local).
-import { existsSync, readFileSync } from "node:fs";
-import { parseEnv } from "node:util";
+// payload { role: "scout" }. The schedule recurs only in production; in
+// development this is how a run starts. GAP(G11): Run now has no documented
+// API or CLI, and the CLI's session command sends no payload, so this uses
+// the SDK with OPENCOMPUTER_API_KEY from .env.local.
 import { OpenComputer } from "@opencomputer/sdk/agents";
+import { appEnv } from "./local-env";
 
-const local = existsSync(".env.local") ? parseEnv(readFileSync(".env.local", "utf8")) : {};
-const apiKey = process.env.OPENCOMPUTER_API_KEY ?? local.OPENCOMPUTER_API_KEY;
-const agentId = process.env.YAP_AGENT_REF ?? local.YAP_AGENT_REF ?? "yap-machine@development";
-const origin = process.env.OPENCOMPUTER_API_URL ?? local.OPENCOMPUTER_API_URL ?? "https://app.opencomputer.dev";
-if (!apiKey) {
-  console.error("OPENCOMPUTER_API_KEY must be set (environment or .env.local)");
+const env = appEnv();
+if (!env.OPENCOMPUTER_API_KEY) {
+  console.error("Set OPENCOMPUTER_API_KEY in .env.local (create one in the OpenComputer dashboard). See the README.");
   process.exit(2);
 }
-
-const oc = new OpenComputer({ apiKey, baseUrl: `${origin}/api/managed-agents` });
+if (!env.YAP_AGENT_REF) {
+  console.error("No agent to run: link the project first (npm run local does it).");
+  process.exit(2);
+}
+const origin = env.OPENCOMPUTER_API_URL ?? "https://app.opencomputer.dev";
+const oc = new OpenComputer({ apiKey: env.OPENCOMPUTER_API_KEY, baseUrl: `${origin}/api/managed-agents` });
 const key = `scout-once-${new Date().toISOString()}`;
-const { session } = await oc.sessions.create({ agentId, source: "api" }, { idempotencyKey: key });
+const { session } = await oc.sessions.create({ agentId: env.YAP_AGENT_REF, source: "api" }, { idempotencyKey: key });
 const receipt = await oc.sessions.turns.send(session.id, {
   input: "Work the searches that are due.",
   payload: { role: "scout" },
   idempotencyKey: `${key}/start`,
 });
-console.log(`Started scout run: session ${session.id}, turn ${receipt.turnId} (${receipt.status}) on ${agentId}`);
+console.log(`Scout run started on ${env.YAP_AGENT_REF}: session ${session.id} (turn ${receipt.status}).`);
+console.log(`Follow it with: npx opencomputer session attach ${session.id}`);

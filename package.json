@@ -36,6 +36,7 @@
     }
   },
   "scripts": {
+    "local": "tsx scripts/local.ts",
     "dev": "vite dev --port 3300 --strictPort",
     "dev:local": "tsx dev/local/run.ts",
     "build": "vite build",
@@ -83,6 +84,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.1",
+    "cloudflared": "^0.7.3",
     "happy-dom": "20.14.5",
     "json-schema-to-ts": "3.1.1",
     "shadcn": "4.21.0",

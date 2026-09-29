@@ -20,6 +20,9 @@ export default defineConfig(({ command, mode }) => {
   }
   return {
     resolve: { tsconfigPaths: true },
+    // `npm run local` exposes the dev server through a Cloudflare quick
+    // tunnel so the agent, which runs in the cloud, can reach its routes.
+    server: { allowedHosts: [".trycloudflare.com"] },
     plugins: [
       tailwindcss(),
       ...(command === "build" ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : []),

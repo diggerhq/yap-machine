@@ -1,7 +1,7 @@
 // Reading a seed brief: the text below the first `---` line is the brief. Its
 // owner sections become the first version; its `## Searches` table becomes
 // the searches, and never reaches the model.
-export const OWNER_SECTIONS = ["Owner", "OpenComputer", "Topics", "Neighbours", "Find", "Skip", "Examples"] as const;
+export const OWNER_SECTIONS = ["Owner", "Product", "Topics", "Neighbours", "Find", "Skip", "Examples"] as const;
 
 export interface SeedSearch {
   readonly id: string;

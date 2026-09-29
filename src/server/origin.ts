@@ -1,7 +1,10 @@
-// The origin check on the owner's routes. Cloudflare Access keeps strangers
-// out of the hostname; this keeps other sites from making the owner's
-// browser change state here. Reads are always allowed. Agent routes carry no
-// Origin and are guarded by their bearer token instead (agent-auth.ts).
+// The owner's routes answer only on the app's own host, and a write must come
+// from the app's own page. Locally the app is also reachable through a
+// tunnel, so the agent can call it; the tunnel's host is not the app's, so
+// the owner's routes (the brief, the searches, the feed) are not served
+// through it. Deployed, the host is the Worker's and the same check holds.
+// Agent routes carry no Origin and are guarded by their bearer token instead
+// (agent-auth.ts).
 function requestOrigin(req: Request): string | null {
   const origin = req.headers.get("origin");
   if (origin) return origin;
@@ -15,6 +18,11 @@ function requestOrigin(req: Request): string | null {
     }
   }
   return null;
+}
+
+/** Whether the request came to the app's own host. */
+export function onAppHost(req: Request, appOrigin: string): boolean {
+  return new URL(req.url).host === new URL(appOrigin).host;
 }
 
 /** Whether a request may change state: a read, or a write from the app's own origin. */

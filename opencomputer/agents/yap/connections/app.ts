@@ -1,20 +1,17 @@
-// The app's agent routes. The bearer token authenticates the agent to the
-// app; the Cloudflare Access service token gets it past Access, which keeps
-// the hostname private (a request without it is redirected to a login page,
-// which the egress proxy refuses). OpenComputer attaches all three.
-// GAP(G5): the origin is a literal, so the Worker's origin lives in source.
-import { bearer, type DataValue, defineConnection, secretHeader, useSecret } from "@opencomputer/agent";
+// The app's agent routes, reached through OpenComputer's egress proxy, which
+// attaches the bearer token from the YAP_AGENT_TOKEN secret; the runtime
+// never holds it.
+// GAP(G5): the origin must be a literal in this call, so it is the one
+// per-clone value in agent source. `npm run local` rewrites it to the
+// current tunnel's origin; a deployed app sets it to the Worker's origin.
+import { bearer, type DataValue, defineConnection, useSecret } from "@opencomputer/agent";
 
 export const app = defineConnection({
   id: "app",
-  origin: "https://yap-machine.mixflow.workers.dev",
+  origin: "https://yap-machine-app.example.com",
   methods: ["GET", "POST"],
   pathPrefix: "/api/agent/",
-  headers: {
-    Authorization: bearer(useSecret("YAP_AGENT_TOKEN")),
-    "CF-Access-Client-Id": secretHeader(useSecret("CF_ACCESS_CLIENT_ID")),
-    "CF-Access-Client-Secret": secretHeader(useSecret("CF_ACCESS_CLIENT_SECRET")),
-  },
+  headers: { Authorization: bearer(useSecret("YAP_AGENT_TOKEN")) },
 });
 
 export interface AppAnswer<T> {
@@ -23,9 +20,9 @@ export interface AppAnswer<T> {
   readonly data: T;
 }
 
-/** One call to an agent route: a JSON body in, the JSON answer and its status out. */
 export type Json = { readonly [key: string]: DataValue };
 
+/** One call to an agent route: a JSON body in, the JSON answer and its status out. */
 export async function callApp<T = Json>(method: "GET" | "POST", path: string, body?: unknown): Promise<AppAnswer<T>> {
   const response = await app.fetch(path, {
     method,

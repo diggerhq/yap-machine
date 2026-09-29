@@ -27,16 +27,22 @@ design repository).
   management client.
 - `src/shared/` the only seam the client and the server both import: the
   validators built from the agent's schemas and the view types.
-- `scripts/` `seed-brief.ts` loads the seed brief; `scout-once.ts` starts one
-  scout run.
+- `scripts/` `local.ts` (`npm run local`: database, app, tunnel, secrets,
+  agent deploy), `local-env.ts` (the configuration every script reads),
+  `seed-brief.ts` with its parser `brief-file.ts`, `scout-once.ts`.
+- `dev/local/db-server.ts` the local database: PGlite with the real
+  migration behind a stand-in for PostgREST's `rpc` endpoint, so supabase-js
+  and the app run unmodified.
 - `dev/` tests (`dev/test`, SQL functions run in PGlite), fixtures (authored
-  X responses; no real third-party posts) and configs.
+  X responses; no real third-party posts), the capture suite (`dev/e2e`) and
+  configs. `brief.example.md` is a sample brief for a fictional product.
 
 ## Commands
 
-- `npm run dev` port 3300; configuration from `.env.local`
+- `npm run local` the whole thing from this checkout (README); `npm run dev:local -- --seed` the app over sample data, no agent
+- `npm run dev` port 3300 with configuration from `.env.local` alone
 - `npm run check` typecheck (app and agent), lint, unit tests, build; what CI runs
-- `npm run seed:brief -- <path>` loads a brief and its searches (writes `brief.local.md`)
+- `npm run seed:brief -- <path>` loads a brief and its searches into the app's database
 - `npm run scout:once` starts one scout run on `YAP_AGENT_REF`
 - `npm run doctor`, `npm run deploy:agents` the agent (`npx opencomputer login` first)
 - `npm run deploy` builds and ships the Worker
@@ -47,7 +53,9 @@ design repository).
 - The brief and the search queries are internal: they live in the database, never in Git.
 - The browser talks only to the app's routes; the Worker alone holds the Supabase and OpenComputer keys.
 - Every multi-step write is one Postgres function called through `db.rpc`.
-- Agent routes require the bearer token; owner writes require the app's own origin.
+- Agent routes require the bearer token. Owner routes answer only on the app's own host (never through the tunnel), and owner writes require the app's own origin.
+- `connections/app.ts` holds the app's origin as a literal (gap G5); `npm run local` rewrites it to the tunnel's. Never commit a tunnel address.
+- `.opencomputer/project.json` is per clone and ignored.
 - The model never supplies a query, a cursor or post content: tool code does the plumbing, the model judges.
 - Agent code imports only relative modules and `@opencomputer/agent` (type-only imports of `json-schema-to-ts` excepted).
 - Platform workarounds carry a `GAP(Gn)` comment naming the gap in work 036.

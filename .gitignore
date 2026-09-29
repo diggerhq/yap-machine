@@ -5,7 +5,7 @@ dist/
 .env.*
 !.env.example
 .dev.vars*
-brief.local.md
+*.local.md
 .opencomputer/dev.json
 opencomputer/agents/*/.opencomputer/
 opencomputer/agents/*/workspace/
@@ -18,3 +18,4 @@ supabase/.branches/
 .DS_Store
 *.tsbuildinfo
 dev/local/.pglite/
+.opencomputer/project.json

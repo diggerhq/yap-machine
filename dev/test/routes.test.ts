@@ -145,6 +145,17 @@ describe("the guards", () => {
     expect((await ownerCall("PUT", "/api/brief/owner", { ownerBody: "x" })).status).toBe(200);
   });
 
+  it("serve the owner's routes only on the app's host, and the agent's through the tunnel too", async () => {
+    await seedBrief(db);
+    const tunnel = "https://random-words.trycloudflare.com";
+    expect((await serve(new Request(`${tunnel}/api/brief`))).status).toBe(404);
+    expect((await serve(new Request(`${tunnel}/api/feed`))).status).toBe(404);
+    const agent = await serve(
+      new Request(`${tunnel}/api/agent/work?sessionId=s`, { headers: { authorization: `Bearer ${TOKEN}` } }),
+    );
+    expect(agent.status).toBe(200);
+  });
+
   it("name a missing configuration key", async () => {
     configure({ db });
     const saved = process.env.YAP_AGENT_TOKEN;
