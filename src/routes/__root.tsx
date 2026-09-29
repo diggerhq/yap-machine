@@ -14,7 +14,7 @@ import appCss from "@/styles.css?url";
 
 export const statusQuery = { queryKey: ["status"], queryFn: fetchStatus, refetchInterval: 20_000 } as const;
 
-export const CONTAINER = "mx-auto w-full max-w-3xl px-4 md:px-8";
+export const CONTAINER = "mx-auto w-full max-w-2xl px-4 md:px-8";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({

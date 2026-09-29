@@ -37,6 +37,7 @@ export interface Candidate {
   authorHandle: string;
   authorName: string;
   authorFollowers: number;
+  authorAvatar: string | null;
   text: string;
   createdAt: string;
   conversationId: string | null;
@@ -51,6 +52,7 @@ export function candidate(id: string, overrides: Partial<Candidate> = {}): Candi
     authorHandle: `author${id}`,
     authorName: `Author ${id}`,
     authorFollowers: 1200,
+    authorAvatar: null,
     text: `Invented post ${id} about running agents for hours.`,
     createdAt: at(-30),
     conversationId: id,

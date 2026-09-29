@@ -72,6 +72,16 @@ export async function opened(postId: string, w: Wiring): Promise<Response> {
   return answer(await w.db.rpc("mark_opened", { p_post_id: postId, p_now: iso(w) }));
 }
 
+/** POST /api/posts/:id/dismiss: Done, without a verdict; teaches nothing. */
+export async function dismiss(postId: string, w: Wiring): Promise<Response> {
+  return answer(await w.db.rpc("mark_dismissed", { p_post_id: postId, p_now: iso(w) }));
+}
+
+/** DELETE /api/posts/:id/dismiss */
+export async function undoDismiss(postId: string, w: Wiring): Promise<Response> {
+  return answer(await w.db.rpc("undo_dismissed", { p_post_id: postId }));
+}
+
 const feedbackBody = z.object({
   verdict: z.enum(["not_relevant", "relevant"]),
   note: z.string().trim().max(280).nullish(),

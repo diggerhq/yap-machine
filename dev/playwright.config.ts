@@ -11,11 +11,11 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: [["list"]],
-  use: { baseURL: "http://localhost:3300", screenshot: "off" },
+  use: { baseURL: "http://localhost:3310", screenshot: "off" },
   webServer: {
     command: "npx tsx dev/local/run.ts",
     cwd: fileURLToPath(new URL("..", import.meta.url)),
-    url: "http://localhost:3300/api/status",
+    url: "http://localhost:3310/api/status",
     reuseExistingServer: false,
     timeout: 90_000,
   },

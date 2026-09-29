@@ -107,5 +107,8 @@ insert into learning_runs (session_id, offered_ids, started_at, finished_at, rep
    '{"role": "learning", "rulesBefore": 0, "rulesAfter": 1, "consolidated": 1, "rescored": 1, "notes": ""}',
    now() - interval '115 minutes');
 
+-- Set aside with Done: in Handled, with no verdict.
+update posts set dismissed_at = now() - interval '10 minutes' where id = '9000000000000000006';
+
 insert into usage_daily (day, spend_usd, post_reads, user_reads) values
   ((now() at time zone 'UTC')::date, 3.415, 431, 126);

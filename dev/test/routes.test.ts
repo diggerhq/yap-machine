@@ -465,6 +465,10 @@ describe("the owner's routes", () => {
     expect((await ownerCall("DELETE", "/api/posts/1/feedback")).status).toBe(200);
     expect((await ownerCall("DELETE", "/api/posts/1/feedback")).status).toBe(404);
     expect((await ownerCall("POST", "/api/posts/1/open")).status).toBe(200);
+    expect((await ownerCall("POST", "/api/posts/1/dismiss")).status).toBe(200);
+    expect((await ownerCall("POST", "/api/posts/1/dismiss", undefined, null)).status).toBe(403);
+    expect((await ownerCall("DELETE", "/api/posts/1/dismiss")).status).toBe(200);
+    expect((await ownerCall("POST", "/api/posts/9/dismiss")).status).toBe(404);
   });
 
   it("edit the owner's sections, delete a rule and restore a version", async () => {

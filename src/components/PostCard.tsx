@@ -1,29 +1,27 @@
-// One post in the feed: the score and its reason, the post itself (X's embed
-// or the stored fallback), and what the owner can do with it. Open on X is
-// the only way to reply: it opens the post's page, where the owner writes by
-// hand. Not relevant (on Open) and Relevant (on Filtered) take an optional
-// one-line note: Enter saves it, Esc saves without it. A handled card shows
-// its verdict and note, with Undo until a learning run has folded it in.
-import { ExternalLink, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
-import { forwardRef, useEffect, useRef, useState } from "react";
-import { Badge } from "@/components/ui/badge";
+// One post in the feed, laid out for reading: the author (avatar, name,
+// handle, age) and then the text, large, with nothing competing for the eye.
+// Replies and quotes carry the post they answer, muted above the text. The
+// actions are icons (Open on X, Not relevant or Relevant, Done) with their
+// names and keys in tooltips. Why the agent surfaced the post stays folded
+// behind a small toggle. A Not relevant or Relevant mark takes an optional
+// one-line note: Enter saves it, Esc saves without it. Done sets a post aside
+// with no verdict, so nothing is learned from it. A handled card shows its
+// verdict and note, or Done, with Undo until a learning run has folded it in.
+import { ArrowUpRight, Check, Info, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
+import { forwardRef, type ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ago, compact } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { type FeedItem, type Filter, postUrl, type Verdict } from "@/shared/feed";
-import { PostFallback } from "./PostFallback";
-import { XEmbed } from "./XEmbed";
 
 export interface CardActions {
   open(item: FeedItem): void;
   mark(item: FeedItem, verdict: Verdict, note: string | null): void;
+  /** Done: set aside without a verdict; nothing is learned from it. */
+  dismiss(item: FeedItem): void;
   undo(item: FeedItem): void;
-}
-
-function scoreTone(score: number, threshold: number): string {
-  if (score >= threshold + 20) return "bg-accent text-accent-foreground";
-  if (score >= threshold) return "bg-accent-soft text-foreground";
-  return "bg-muted text-muted-foreground";
 }
 
 export const PostCard = forwardRef<
@@ -31,117 +29,213 @@ export const PostCard = forwardRef<
   {
     item: FeedItem;
     filter: Filter;
-    threshold: number;
     selected: boolean;
     noting: Verdict | null;
     onNoting: (verdict: Verdict | null) => void;
     actions: CardActions;
-    dark: boolean;
     now: number;
   }
->(function PostCard({ item, filter, threshold, selected, noting, onNoting, actions, dark, now }, ref) {
-  const judgment = item.judgment;
-  const verdictForFilter: Verdict = filter === "filtered" ? "relevant" : "not_relevant";
+>(function PostCard({ item, filter, selected, noting, onNoting, actions, now }, ref) {
+  const [why, setWhy] = useState(false);
+  const verdict: Verdict = filter === "filtered" ? "relevant" : "not_relevant";
   return (
     <li
       ref={ref}
       data-slot="post-card"
       data-selected={selected || undefined}
       className={cn(
-        "flex flex-col gap-3 rounded-lg border bg-background p-4 md:p-5",
-        selected && "border-ring ring-1 ring-ring/40",
+        "relative flex gap-3 border-l-2 border-transparent px-4 py-4 md:px-5",
+        selected && "border-l-accent bg-hover",
       )}
     >
-      {judgment ? (
-        <div className="flex items-start gap-3">
-          <span
-            className={cn(
-              "flex h-8 min-w-10 shrink-0 items-center justify-center rounded-md px-2 font-mono text-sm font-semibold tabular-nums",
-              scoreTone(judgment.score, threshold),
-            )}
-            title="How worth answering, 0 to 100"
-          >
-            {judgment.score}
+      <Avatar item={item} />
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex min-w-0 items-baseline gap-1.5 text-sm">
+          <span className="truncate font-semibold">{item.authorName}</span>
+          <span className="truncate text-muted-foreground">@{item.authorHandle}</span>
+          <span aria-hidden="true" className="text-muted-foreground">
+            ·
           </span>
-          <p className="min-w-0 flex-1 pt-1 text-sm">
-            {judgment.reason}
-            {judgment.kind === "rescore" ? (
-              <Badge variant="outline" className="ml-2 align-middle font-normal text-muted-foreground">
-                re-scored
-              </Badge>
-            ) : null}
+          <time
+            className="shrink-0 text-muted-foreground"
+            dateTime={item.createdAt}
+            title={new Date(item.createdAt).toLocaleString()}
+          >
+            {ago(item.createdAt, now)}
+          </time>
+        </div>
+
+        {item.context ? (
+          <p className="text-sm text-muted-foreground">
+            {item.context.kind === "quoted" ? "Quoting" : "Replying to"} @{item.context.authorHandle || "unknown"}
+            {item.context.text ? <span className="mt-0.5 line-clamp-2 block">{item.context.text}</span> : null}
           </p>
-        </div>
-      ) : null}
+        ) : null}
 
-      <XEmbed postId={item.id} dark={dark} fallback={<PostFallback item={item} now={now} />} />
+        {item.text ? (
+          <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">{item.text}</p>
+        ) : (
+          <p className="text-[15px] text-muted-foreground italic">
+            The text is cleared 48 hours after a post; open it on X.
+          </p>
+        )}
 
-      {filter === "handled" ? (
-        <Handled item={item} onUndo={() => actions.undo(item)} />
-      ) : noting ? (
-        <NoteInput
-          verdict={noting}
-          onDone={(note) => {
-            onNoting(null);
-            actions.mark(item, noting, note);
-          }}
-          onCancel={() => onNoting(null)}
-        />
-      ) : (
-        <div className="flex flex-wrap items-center gap-2">
-          <Button asChild size="sm">
-            <a href={postUrl(item)} target="_blank" rel="noopener noreferrer" onClick={() => actions.open(item)}>
-              <ExternalLink aria-hidden="true" />
-              Open on X{selected ? <Kbd className="ml-1">o</Kbd> : null}
-            </a>
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => onNoting(verdictForFilter)}>
-            {verdictForFilter === "not_relevant" ? <ThumbsDown aria-hidden="true" /> : <ThumbsUp aria-hidden="true" />}
-            {verdictForFilter === "not_relevant" ? "Not relevant" : "Relevant"}
-            {selected ? <Kbd className="ml-1">{verdictForFilter === "not_relevant" ? "x" : "r"}</Kbd> : null}
-          </Button>
-        </div>
-      )}
+        {filter === "handled" ? (
+          <Handled item={item} onUndo={() => actions.undo(item)} />
+        ) : noting ? (
+          <NoteInput
+            verdict={noting}
+            onDone={(note) => {
+              onNoting(null);
+              actions.mark(item, noting, note);
+            }}
+            onCancel={() => onNoting(null)}
+          />
+        ) : (
+          <div className="-ml-2 flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="flex gap-3 pl-2">
+              <span>{compact(item.metrics.reply)} replies</span>
+              <span className="hidden sm:inline">{compact(item.metrics.like)} likes</span>
+              <span className="hidden sm:inline">{compact(item.authorFollowers)} followers</span>
+            </span>
+            <span className="ml-auto flex items-center">
+              {item.judgment ? (
+                <Action label="Why it's here" onClick={() => setWhy((open) => !open)} pressed={why} subtle>
+                  <Info />
+                </Action>
+              ) : null}
+              <Action
+                label={verdict === "not_relevant" ? "Not relevant" : "Relevant"}
+                hotkey={verdict === "not_relevant" ? "x" : "r"}
+                onClick={() => onNoting(verdict)}
+              >
+                {verdict === "not_relevant" ? <ThumbsDown /> : <ThumbsUp />}
+              </Action>
+              <Action label="Done: set aside, nothing learned" hotkey="d" onClick={() => actions.dismiss(item)}>
+                <Check />
+              </Action>
+              <Action label="Open on X" hotkey="o" href={postUrl(item)} onClick={() => actions.open(item)}>
+                <ArrowUpRight />
+              </Action>
+            </span>
+          </div>
+        )}
+
+        {why && item.judgment ? (
+          <p className="text-xs text-muted-foreground">
+            {item.judgment.reason}
+            {item.judgment.kind === "rescore" ? " (re-scored after the brief changed)" : ""}
+          </p>
+        ) : null}
+      </div>
     </li>
   );
 });
 
+function Avatar({ item }: { item: FeedItem }) {
+  const [broken, setBroken] = useState(false);
+  const letter = (item.authorName || item.authorHandle).slice(0, 1).toUpperCase();
+  return item.authorAvatar && !broken ? (
+    <img
+      src={item.authorAvatar}
+      alt=""
+      width={40}
+      height={40}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setBroken(true)}
+      className="size-10 shrink-0 rounded-full bg-muted object-cover"
+    />
+  ) : (
+    <span
+      aria-hidden="true"
+      className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground"
+    >
+      {letter}
+    </span>
+  );
+}
+
+function Action({
+  label,
+  hotkey,
+  onClick,
+  href,
+  pressed,
+  subtle = false,
+  children,
+}: {
+  label: string;
+  hotkey?: string;
+  onClick?: () => void;
+  href?: string;
+  pressed?: boolean;
+  subtle?: boolean;
+  children: ReactNode;
+}) {
+  const className = cn("text-muted-foreground hover:text-foreground", subtle && "opacity-60 hover:opacity-100");
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {href ? (
+          <Button asChild variant="ghost" size="icon-sm" className={className}>
+            <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} onClick={onClick}>
+              {children}
+            </a>
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className={className}
+            aria-label={label}
+            aria-pressed={pressed}
+            onClick={onClick}
+          >
+            {children}
+          </Button>
+        )}
+      </TooltipTrigger>
+      <TooltipContent>
+        {label}
+        {hotkey ? <Kbd className="ml-2">{hotkey}</Kbd> : null}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
 function Handled({ item, onUndo }: { item: FeedItem; onUndo: () => void }) {
   const feedback = item.feedback;
+  const undoable = (feedback && !feedback.consolidated) || (!feedback && item.dismissedAt);
+  const state = feedback
+    ? feedback.verdict === "relevant"
+      ? "Relevant"
+      : "Not relevant"
+    : item.dismissedAt
+      ? "Done"
+      : "Opened on X";
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm">
-      {feedback ? (
-        <Badge
-          variant="outline"
-          className={cn(
-            "font-normal",
-            feedback.verdict === "relevant" ? "text-status-ready-for-review" : "text-status-failed",
-          )}
-        >
-          {feedback.verdict === "relevant" ? "Relevant" : "Not relevant"}
-        </Badge>
-      ) : null}
-      {item.openedAt ? (
-        <Badge variant="outline" className="font-normal text-muted-foreground">
-          Opened on X
-        </Badge>
-      ) : null}
-      {feedback?.note ? <span className="min-w-0 text-muted-foreground">“{feedback.note}”</span> : null}
-      <span className="ml-auto flex items-center gap-2">
-        {feedback && !feedback.consolidated ? (
-          <Button variant="ghost" size="sm" onClick={onUndo}>
-            <RotateCcw aria-hidden="true" />
-            Undo
-          </Button>
-        ) : feedback ? (
-          <span className="text-xs text-muted-foreground">In the brief</span>
+    <div className="-ml-2 flex items-center gap-2 text-xs text-muted-foreground">
+      <span
+        className={cn(
+          "shrink-0 pl-2 whitespace-nowrap",
+          feedback?.verdict === "relevant" && "text-status-ready-for-review",
+          feedback?.verdict === "not_relevant" && "text-status-failed",
+        )}
+      >
+        {state}
+      </span>
+      {feedback?.note ? <span className="min-w-0 truncate">“{feedback.note}”</span> : null}
+      {feedback?.consolidated ? <span className="shrink-0 whitespace-nowrap">· in the brief</span> : null}
+      <span className="ml-auto flex items-center">
+        {undoable ? (
+          <Action label="Undo" onClick={onUndo}>
+            <RotateCcw />
+          </Action>
         ) : null}
-        <Button asChild variant="ghost" size="sm">
-          <a href={postUrl(item)} target="_blank" rel="noopener noreferrer">
-            <ExternalLink aria-hidden="true" />
-            Open on X
-          </a>
-        </Button>
+        <Action label="Open on X" href={postUrl(item)}>
+          <ArrowUpRight />
+        </Action>
       </span>
     </div>
   );
@@ -162,7 +256,7 @@ function NoteInput({
   const label = verdict === "relevant" ? "Why is it relevant?" : "Why is it not relevant?";
   return (
     <form
-      className="flex flex-wrap items-center gap-2"
+      className="flex flex-wrap items-center gap-2 pt-1"
       onSubmit={(event) => {
         event.preventDefault();
         onDone(note.trim() || null);
@@ -171,7 +265,7 @@ function NoteInput({
       <input
         ref={input}
         aria-label={label}
-        placeholder={`${label} Optional`}
+        placeholder={`${label} Optional. Enter saves, Esc skips`}
         maxLength={280}
         value={note}
         onChange={(event) => setNote(event.target.value)}
@@ -184,10 +278,7 @@ function NoteInput({
         className="h-8 min-w-0 flex-1 basis-full rounded-md border bg-background px-3 text-sm placeholder:text-muted-foreground sm:basis-auto"
       />
       <Button type="submit" size="sm">
-        Save <Kbd className="ml-1">Enter</Kbd>
-      </Button>
-      <Button type="button" variant="ghost" size="sm" onClick={() => onDone(null)}>
-        Without note <Kbd className="ml-1">Esc</Kbd>
+        Save
       </Button>
       <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
         Cancel

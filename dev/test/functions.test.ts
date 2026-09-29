@@ -728,3 +728,44 @@ describe("searches and status", () => {
     expect(state.versions).toHaveLength(1);
   });
 });
+
+describe("Done", () => {
+  it("sets a post aside without a verdict, keeps it out of judging and re-scoring, and undoes", async () => {
+    await seedBrief(db);
+    await seedSearch(db, "s");
+    await store(
+      db,
+      "s",
+      ["1", "2", "3"].map((id) => candidate(id)),
+    );
+    await judge(db, [
+      { postId: "1", score: 90 },
+      { postId: "2", score: 70 },
+    ]);
+    expect(await db.rpc("mark_dismissed", { p_post_id: "1", p_now: T0 })).toEqual({ dismissed: "1" });
+    expect(await db.rpc("mark_dismissed", { p_post_id: "3", p_now: T0 })).toEqual({ dismissed: "3" });
+    expect(await db.rpc("mark_dismissed", { p_post_id: "zzz" })).toEqual({ error: "unknown_post" });
+    const page = (filter: string) =>
+      db.rpc<{ items: { id: string; dismissedAt: string | null; feedback: unknown }[] }>("feed_page", {
+        p_filter: filter,
+        p_threshold: 60,
+        p_cursor: null,
+        p_limit: 50,
+        p_now: T0,
+      });
+    expect((await page("open")).items.map((i) => i.id)).toEqual(["2"]);
+    const handled = (await page("handled")).items;
+    expect(handled.map((i) => [i.id, Boolean(i.dismissedAt), i.feedback])).toEqual([["1", true, null]]);
+    // An unjudged post set aside is never leased for judging.
+    const leased = await db.rpc<{ posts: { id: string }[] }>("lease_posts", {
+      p_session_id: "x",
+      p_limit: 25,
+      p_now: T0,
+    });
+    expect(leased.posts).toEqual([]);
+    expect(await db.query("select count(*)::int as n from feedback")).toEqual([{ n: 0 }]);
+    expect(await db.rpc("feed_new_count", { p_since: at(-60), p_threshold: 60, p_now: T0 })).toEqual({ count: 1 });
+    await db.rpc("undo_dismissed", { p_post_id: "1" });
+    expect((await page("open")).items.map((i) => i.id)).toEqual(["1", "2"]);
+  });
+});

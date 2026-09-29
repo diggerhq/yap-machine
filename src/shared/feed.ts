@@ -9,12 +9,16 @@ export interface FeedItem {
   readonly authorHandle: string;
   readonly authorName: string;
   readonly authorFollowers: number;
+  /** The author's X profile image, when X returned one. */
+  readonly authorAvatar: string | null;
   /** Cleared 48 hours after the post was created; the embed still shows it. */
   readonly text: string | null;
   readonly createdAt: string;
   readonly context: { kind: string; id: string; authorHandle: string; text?: string } | null;
   readonly metrics: { like: number; reply: number; repost: number; quote: number; impression: number };
   readonly openedAt: string | null;
+  /** Set aside with Done: in Handled, with no verdict. */
+  readonly dismissedAt: string | null;
   readonly searchId: string;
   readonly judgment: {
     readonly score: number;

@@ -105,6 +105,9 @@ describe("parseSearchPage", () => {
       text: "What are people using for sandboxes that run agents for hours?",
     });
     expect(first.posts[2]?.text).toMatch(/the whole problem\.$/);
+    // Avatars come only from X's image host, at the larger size.
+    expect(first.posts[0]?.authorAvatar).toBe("https://pbs.twimg.com/profile_images/1/example_bigger.jpg");
+    expect(first.posts[1]?.authorAvatar).toBeNull();
     expect(first).toMatchObject({
       postReads: 5,
       userReads: 3,

@@ -14,7 +14,7 @@ export function searchParams(query: string, sinceId: string | null, nextToken?: 
     sort_order: "recency",
     "tweet.fields": "created_at,public_metrics,conversation_id,referenced_tweets,lang,author_id,note_tweet",
     expansions: "author_id,referenced_tweets.id,referenced_tweets.id.author_id",
-    "user.fields": "username,name,public_metrics",
+    "user.fields": "username,name,public_metrics,profile_image_url",
   });
   if (sinceId) params.set("since_id", sinceId);
   if (nextToken) params.set("next_token", nextToken);
@@ -26,6 +26,7 @@ interface XUser {
   username?: string;
   name?: string;
   public_metrics?: { followers_count?: number };
+  profile_image_url?: string;
 }
 
 interface XPost {
@@ -65,6 +66,13 @@ export interface ParsedPage {
 }
 
 const count = (value: number | undefined) => (typeof value === "number" && value >= 0 ? Math.floor(value) : 0);
+// X serves a 48 px `_normal` image; `_bigger` (73 px) stays sharp at the
+// feed's size on dense screens. Anything not on X's image host is dropped.
+function avatar(url: string | undefined): string | null {
+  if (!url?.startsWith("https://pbs.twimg.com/") || url.length > 500) return null;
+  return url.replace(/_normal(\.\w+)$/, "_bigger$1");
+}
+
 const fullText = (post: XPost) => post.note_tweet?.text ?? post.note_post?.text ?? post.text ?? "";
 
 export function parseSearchPage(body: unknown): ParsedPage {
@@ -90,6 +98,7 @@ export function parseSearchPage(body: unknown): ParsedPage {
       authorHandle: author.username,
       authorName: author.name ?? author.username,
       authorFollowers: count(author.public_metrics?.followers_count),
+      authorAvatar: avatar(author.profile_image_url),
       text: fullText(post),
       createdAt: new Date(post.created_at).toISOString(),
       conversationId: post.conversation_id ?? null,

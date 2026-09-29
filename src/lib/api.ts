@@ -43,6 +43,12 @@ export function markOpened(postId: string): void {
   void fetch(`/api/posts/${encodeURIComponent(postId)}/open`, { method: "POST", keepalive: true }).catch(() => {});
 }
 
+export const dismiss = (postId: string) =>
+  call<{ dismissed: string }>("POST", `/api/posts/${encodeURIComponent(postId)}/dismiss`);
+
+export const undoDismiss = (postId: string) =>
+  call<{ restored: string }>("DELETE", `/api/posts/${encodeURIComponent(postId)}/dismiss`);
+
 export const putFeedback = (postId: string, verdict: Verdict, note: string | null) =>
   call<{ id: number }>("PUT", `/api/posts/${encodeURIComponent(postId)}/feedback`, { verdict, note });
 

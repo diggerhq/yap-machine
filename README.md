@@ -97,14 +97,19 @@ Your feed, brief and searches are served on `localhost` alone.
 
 - **Feed.** *Open* is what scored at or above the threshold (60), ranked by
   score and freshness; a post loses half its rank every six hours. *Filtered*
-  is what scored lower. *Handled* is what you opened or marked.
+  is what scored lower. *Handled* is what you opened, marked, or set aside with Done.
 - **Open on X** opens the post in a new tab, where you reply by hand.
 - **Not relevant** on an Open post, or **Relevant** on a Filtered one, takes
   an optional one-line note. The next scout run reads your marks as examples.
   A learning run then folds them into short rules in the brief and re-scores
   the feed.
+- **Done** (✓) sets a post aside with no verdict: it moves to Handled and
+  nothing is learned from it. Use it for posts you've already answered or
+  simply want to skip.
+- **Why it's here** (ⓘ) shows the agent's one-line reason, folded away by
+  default.
 - **Keys:** `j`/`k` move, `o` opens on X, `x` marks Not relevant, `r` marks
-  Relevant.
+  Relevant, `d` marks Done.
 - **Searches** are saved X queries, each with its own interval. Edit them in
   the app; there is nothing to deploy.
 - **Brief** is your sections, which only you edit, plus the learned rules,
@@ -140,7 +145,7 @@ this repository; `*.local.md` files are ignored for your working copy.
 
 ```bash
 npm run check                      # typecheck, lint, tests (SQL runs in PGlite), build
-npm run dev:sample                 # the app over authored sample data, no agent or setup
+npm run dev:sample                 # the app over sample data on :3310, no agent or setup
 npx playwright test --config dev/playwright.config.ts   # captures every screen
 ```
 

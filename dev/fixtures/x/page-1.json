@@ -23,7 +23,12 @@
       "created_at": "2026-09-29T11:40:00.000Z",
       "conversation_id": "1850000000000000090",
       "lang": "en",
-      "referenced_tweets": [{ "type": "replied_to", "id": "1850000000000000090" }],
+      "referenced_tweets": [
+        {
+          "type": "replied_to",
+          "id": "1850000000000000090"
+        }
+      ],
       "public_metrics": {
         "retweet_count": 0,
         "reply_count": 0,
@@ -35,7 +40,7 @@
     },
     {
       "id": "1850000000000000101",
-      "text": "Long thoughts on durable execution for agent loops, part one of…",
+      "text": "Long thoughts on durable execution for agent loops, part one of\u2026",
       "author_id": "7001",
       "created_at": "2026-09-29T11:30:00.000Z",
       "conversation_id": "1850000000000000101",
@@ -75,13 +80,25 @@
         "id": "7001",
         "username": "builder_ana",
         "name": "Ana Builder",
-        "public_metrics": { "followers_count": 12400, "following_count": 300, "tweet_count": 5000, "listed_count": 90 }
+        "public_metrics": {
+          "followers_count": 12400,
+          "following_count": 300,
+          "tweet_count": 5000,
+          "listed_count": 90
+        },
+        "profile_image_url": "https://pbs.twimg.com/profile_images/1/example_normal.jpg"
       },
       {
         "id": "7002",
         "username": "ops_ben",
         "name": "Ben Ops",
-        "public_metrics": { "followers_count": 830, "following_count": 200, "tweet_count": 900, "listed_count": 4 }
+        "public_metrics": {
+          "followers_count": 830,
+          "following_count": 200,
+          "tweet_count": 900,
+          "listed_count": 4
+        },
+        "profile_image_url": "https://example.com/not-x.jpg"
       },
       {
         "id": "7003",

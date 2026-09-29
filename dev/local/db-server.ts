@@ -22,13 +22,39 @@ export async function openDb(options: { reset?: boolean; seed?: boolean; dir?: s
   if (options.reset && existsSync(dir)) rmSync(dir, { recursive: true });
   const fresh = !existsSync(dir);
   const pg = new PGlite(dir);
-  if (fresh) {
-    await pg.exec("create role anon; create role authenticated; create role service_role;");
-    const migrations = join(ROOT, "supabase", "migrations");
-    for (const file of readdirSync(migrations).sort()) await pg.exec(readFileSync(join(migrations, file), "utf8"));
-  }
+  if (fresh) await pg.exec("create role anon; create role authenticated; create role service_role;");
+  await migrate(pg);
   if (options.seed) await pg.exec(readFileSync(join(ROOT, "supabase", "seed.sql"), "utf8"));
   return pg;
+}
+
+/**
+ * Applies the migrations this database has not seen, in name order, and
+ * records each one, the way `supabase db push` does for a hosted project. A
+ * database made before this record existed has the first migration only.
+ */
+async function migrate(pg: PGlite): Promise<void> {
+  await pg.exec("create table if not exists local_migrations (name text primary key)");
+  const known = await pg.query<{ n: number }>(
+    "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'brief_versions'",
+  );
+  const directory = join(ROOT, "supabase", "migrations");
+  const files = readdirSync(directory).sort();
+  const applied = new Set(
+    (await pg.query<{ name: string }>("select name from local_migrations")).rows.map((r) => r.name),
+  );
+  if (applied.size === 0 && (known.rows[0]?.n ?? 0) > 0 && files[0]) {
+    await pg.query("insert into local_migrations (name) values ($1)", [files[0]]);
+    applied.add(files[0]);
+  }
+  for (const file of files) {
+    if (applied.has(file)) continue;
+    await pg.transaction(async (tx) => {
+      await tx.exec(readFileSync(join(directory, file), "utf8"));
+      await tx.query("insert into local_migrations (name) values ($1)", [file]);
+    });
+    console.log(`Applied ${file}`);
+  }
 }
 
 export function serveRpc(pg: PGlite, port = DB_PORT): Promise<() => Promise<void>> {

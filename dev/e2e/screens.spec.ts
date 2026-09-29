@@ -22,12 +22,15 @@ async function capture(page: Page, name: string): Promise<void> {
   }
 }
 
-test("feed: Open, ranked, with a re-scored card and a reply's context", async ({ page }) => {
+test("feed: Open, ranked, with a reply's context and the reason folded away", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("[data-slot=post-card]").first()).toContainText("Coding agents unattended");
-  await expect(page.getByText("re-scored")).toBeVisible();
+  await expect(page.locator("[data-slot=post-card]").first()).toContainText("Claude Code headless on a schedule");
   await expect(page.getByText("Replying to @infra_cy")).toBeVisible();
+  await expect(page.getByText("Coding agents unattended")).toHaveCount(0);
   await capture(page, "feed-open");
+  await page.getByRole("button", { name: "Why it's here" }).first().click();
+  await expect(page.getByText("Coding agents unattended")).toBeVisible();
+  await capture(page, "feed-why");
 });
 
 test("feed: marking Not relevant asks for an optional note", async ({ page }) => {
@@ -44,9 +47,10 @@ test("feed: Filtered and Handled", async ({ page }) => {
   await expect(page.getByRole("button", { name: /Relevant/ }).first()).toBeVisible();
   await capture(page, "feed-filtered");
   await page.goto("/?filter=handled");
-  await expect(page.getByText("In the brief")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Undo" })).toBeVisible();
-  await expect(page.getByText("The stored text is cleared")).toBeVisible();
+  await expect(page.getByText("in the brief")).toBeVisible();
+  await expect(page.getByText("Done", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Undo" })).toHaveCount(2);
+  await expect(page.getByText("The text is cleared")).toBeVisible();
   await capture(page, "feed-handled");
 });
 

@@ -1,9 +1,9 @@
 // The feed: Open (worth answering now, by rank), Filtered (scored below the
-// threshold) and Handled (opened on X, or given feedback). A reading surface:
+// threshold) and Handled (opened on X, given feedback, or Done). A reading surface:
 // there is no text input for X anywhere. The list polls for newly judged
 // Open posts every 20 seconds and offers them as "N new" rather than moving
 // the page under the reader. Keyboard: j/k move, o opens on X, x marks Not
-// relevant, r marks Relevant.
+// relevant, r marks Relevant, d marks Done (set aside, nothing learned).
 import { type InfiniteData, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUp } from "lucide-react";
@@ -12,8 +12,7 @@ import { toast } from "sonner";
 import { type CardActions, PostCard } from "@/components/PostCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchFeed, fetchNewCount, markOpened, putFeedback, withdrawFeedback } from "@/lib/api";
-import { useTheme } from "@/lib/theme";
+import { dismiss, fetchFeed, fetchNewCount, markOpened, putFeedback, undoDismiss, withdrawFeedback } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { type FeedItem, type FeedPage, FILTERS, type Filter, postUrl, type Verdict } from "@/shared/feed";
 import { statusQuery } from "./__root";
@@ -28,15 +27,12 @@ const LABELS: Record<Filter, string> = { open: "Open", filtered: "Filtered", han
 const EMPTY: Record<Filter, string> = {
   open: "Nothing worth answering right now. The scout runs every five minutes.",
   filtered: "Nothing scored below the threshold in the last 48 hours.",
-  handled: "Posts you open on X or give feedback on land here.",
+  handled: "Posts you open on X, mark, or set aside with Done land here.",
 };
 
 function Feed() {
   const filter = Route.useSearch().filter ?? "open";
   const client = useQueryClient();
-  const { resolved } = useTheme();
-  const status = useQuery(statusQuery);
-  const threshold = status.data?.threshold ?? 60;
   const feed = useInfiniteQuery({
     queryKey: ["feed", filter],
     queryFn: ({ pageParam }) => fetchFeed(filter, pageParam),
@@ -89,8 +85,16 @@ function Feed() {
             void client.invalidateQueries({ queryKey: ["feed"] });
           });
       },
+      dismiss(item) {
+        drop(item.id);
+        dismiss(item.id).catch((error: Error) => {
+          toast.error(error.message);
+          void client.invalidateQueries({ queryKey: ["feed"] });
+        });
+      },
       undo(item) {
-        withdrawFeedback(item.id)
+        // Undo withdraws unconsolidated feedback, or else a Done.
+        (item.feedback ? withdrawFeedback(item.id) : undoDismiss(item.id))
           .then(() => void client.invalidateQueries({ queryKey: ["feed"] }))
           .catch((error: Error) => toast.error(error.message));
       },
@@ -129,6 +133,9 @@ function Feed() {
       } else if (event.key === "r" && filter === "filtered") {
         event.preventDefault();
         setNoting({ id: item.id, verdict: "relevant" });
+      } else if (event.key === "d" && filter !== "handled") {
+        event.preventDefault();
+        actions.dismiss(item);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -153,11 +160,6 @@ function Feed() {
             </Link>
           ))}
         </nav>
-        {filter !== "handled" ? (
-          <span className="ml-auto text-xs text-muted-foreground">
-            {filter === "open" ? "Score" : "Below"} {filter === "open" ? "≥" : ""} {threshold}
-          </span>
-        ) : null}
       </div>
 
       {newCount > 0 ? (
@@ -178,7 +180,7 @@ function Feed() {
       {feed.isPending ? (
         <div className="flex flex-col gap-4">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-44 rounded-lg" />
+            <Skeleton key={i} className="h-32 rounded-lg" />
           ))}
         </div>
       ) : feed.isError ? (
@@ -188,7 +190,7 @@ function Feed() {
       ) : items.length === 0 ? (
         <p className="py-16 text-center text-sm text-muted-foreground">{EMPTY[filter]}</p>
       ) : (
-        <ul className="flex flex-col gap-4">
+        <ul className="flex flex-col divide-y overflow-hidden rounded-lg border">
           {items.map((item: FeedItem, index) => (
             <PostCard
               key={item.id}
@@ -198,7 +200,6 @@ function Feed() {
               }}
               item={item}
               filter={filter}
-              threshold={threshold}
               selected={index === selected}
               noting={noting?.id === item.id ? noting.verdict : null}
               onNoting={(verdict) => {
@@ -206,7 +207,6 @@ function Feed() {
                 setNoting(verdict ? { id: item.id, verdict } : null);
               }}
               actions={actions}
-              dark={resolved === "dark"}
               now={now}
             />
           ))}

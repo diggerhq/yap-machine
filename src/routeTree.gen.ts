@@ -31,6 +31,7 @@ import { Route as ApiAgentLearningRulesRouteImport } from './routes/api/agent/le
 import { Route as ApiAgentQueueLeaseRouteImport } from './routes/api/agent/queue.lease'
 import { Route as ApiBriefRulesRuleIdRouteImport } from './routes/api/brief.rules.$ruleId'
 import { Route as ApiBriefVersionsIdRouteImport } from './routes/api/brief.versions.$id'
+import { Route as ApiPostsIdDismissRouteImport } from './routes/api/posts.$id.dismiss'
 import { Route as ApiPostsIdFeedbackRouteImport } from './routes/api/posts.$id.feedback'
 import { Route as ApiPostsIdOpenRouteImport } from './routes/api/posts.$id.open'
 import { Route as ApiAgentLearningRescoresLeaseRouteImport } from './routes/api/agent/learning.rescores.lease'
@@ -148,6 +149,11 @@ const ApiBriefVersionsIdRoute = ApiBriefVersionsIdRouteImport.update({
   path: '/versions/$id',
   getParentRoute: () => ApiBriefRoute,
 } as any)
+const ApiPostsIdDismissRoute = ApiPostsIdDismissRouteImport.update({
+  id: '/api/posts/$id/dismiss',
+  path: '/api/posts/$id/dismiss',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPostsIdFeedbackRoute = ApiPostsIdFeedbackRouteImport.update({
   id: '/api/posts/$id/feedback',
   path: '/api/posts/$id/feedback',
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/api/agent/queue/lease': typeof ApiAgentQueueLeaseRoute
   '/api/brief/rules/$ruleId': typeof ApiBriefRulesRuleIdRoute
   '/api/brief/versions/$id': typeof ApiBriefVersionsIdRouteWithChildren
+  '/api/posts/$id/dismiss': typeof ApiPostsIdDismissRoute
   '/api/posts/$id/feedback': typeof ApiPostsIdFeedbackRoute
   '/api/posts/$id/open': typeof ApiPostsIdOpenRoute
   '/api/agent/learning/rescores/lease': typeof ApiAgentLearningRescoresLeaseRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/api/agent/queue/lease': typeof ApiAgentQueueLeaseRoute
   '/api/brief/rules/$ruleId': typeof ApiBriefRulesRuleIdRoute
   '/api/brief/versions/$id': typeof ApiBriefVersionsIdRouteWithChildren
+  '/api/posts/$id/dismiss': typeof ApiPostsIdDismissRoute
   '/api/posts/$id/feedback': typeof ApiPostsIdFeedbackRoute
   '/api/posts/$id/open': typeof ApiPostsIdOpenRoute
   '/api/agent/learning/rescores/lease': typeof ApiAgentLearningRescoresLeaseRoute
@@ -258,6 +266,7 @@ export interface FileRoutesById {
   '/api/agent/queue/lease': typeof ApiAgentQueueLeaseRoute
   '/api/brief/rules/$ruleId': typeof ApiBriefRulesRuleIdRoute
   '/api/brief/versions/$id': typeof ApiBriefVersionsIdRouteWithChildren
+  '/api/posts/$id/dismiss': typeof ApiPostsIdDismissRoute
   '/api/posts/$id/feedback': typeof ApiPostsIdFeedbackRoute
   '/api/posts/$id/open': typeof ApiPostsIdOpenRoute
   '/api/agent/learning/rescores/lease': typeof ApiAgentLearningRescoresLeaseRoute
@@ -289,6 +298,7 @@ export interface FileRouteTypes {
     | '/api/agent/queue/lease'
     | '/api/brief/rules/$ruleId'
     | '/api/brief/versions/$id'
+    | '/api/posts/$id/dismiss'
     | '/api/posts/$id/feedback'
     | '/api/posts/$id/open'
     | '/api/agent/learning/rescores/lease'
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/api/agent/queue/lease'
     | '/api/brief/rules/$ruleId'
     | '/api/brief/versions/$id'
+    | '/api/posts/$id/dismiss'
     | '/api/posts/$id/feedback'
     | '/api/posts/$id/open'
     | '/api/agent/learning/rescores/lease'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/api/agent/queue/lease'
     | '/api/brief/rules/$ruleId'
     | '/api/brief/versions/$id'
+    | '/api/posts/$id/dismiss'
     | '/api/posts/$id/feedback'
     | '/api/posts/$id/open'
     | '/api/agent/learning/rescores/lease'
@@ -370,6 +382,7 @@ export interface RootRouteChildren {
   ApiAgentReportRoute: typeof ApiAgentReportRoute
   ApiAgentWorkRoute: typeof ApiAgentWorkRoute
   ApiAgentQueueLeaseRoute: typeof ApiAgentQueueLeaseRoute
+  ApiPostsIdDismissRoute: typeof ApiPostsIdDismissRoute
   ApiPostsIdFeedbackRoute: typeof ApiPostsIdFeedbackRoute
   ApiPostsIdOpenRoute: typeof ApiPostsIdOpenRoute
   ApiAgentSearchesIdClaimRoute: typeof ApiAgentSearchesIdClaimRoute
@@ -531,6 +544,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBriefVersionsIdRouteImport
       parentRoute: typeof ApiBriefRoute
     }
+    '/api/posts/$id/dismiss': {
+      id: '/api/posts/$id/dismiss'
+      path: '/api/posts/$id/dismiss'
+      fullPath: '/api/posts/$id/dismiss'
+      preLoaderRoute: typeof ApiPostsIdDismissRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/posts/$id/feedback': {
       id: '/api/posts/$id/feedback'
       path: '/api/posts/$id/feedback'
@@ -662,6 +682,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAgentReportRoute: ApiAgentReportRoute,
   ApiAgentWorkRoute: ApiAgentWorkRoute,
   ApiAgentQueueLeaseRoute: ApiAgentQueueLeaseRoute,
+  ApiPostsIdDismissRoute: ApiPostsIdDismissRoute,
   ApiPostsIdFeedbackRoute: ApiPostsIdFeedbackRoute,
   ApiPostsIdOpenRoute: ApiPostsIdOpenRoute,
   ApiAgentSearchesIdClaimRoute: ApiAgentSearchesIdClaimRoute,
