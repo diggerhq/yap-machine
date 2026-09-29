@@ -21,7 +21,7 @@ async function fetchPage(query: string, sinceId: string | null, nextToken?: stri
     let detail = text.slice(0, 300);
     try {
       const body = JSON.parse(text) as { detail?: string; title?: string; errors?: { message?: string }[] };
-      detail = (body.detail ?? body.errors?.[0]?.message ?? body.title ?? detail).slice(0, 300);
+      detail = (body.errors?.[0]?.message ?? body.detail ?? body.title ?? detail).slice(0, 300);
     } catch {}
     const unavailable = response.status === 429 || response.status >= 500;
     return { error: unavailable ? "x_unavailable" : "x_rejected", status: response.status, detail };
