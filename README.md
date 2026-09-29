@@ -1,6 +1,6 @@
 # Yap machine
 
-A feed of the posts on X worth answering. An [OpenComputer](https://opencomputer.dev)
+A feed of the posts on X worth answering. An [OpenComputer](https://docs.opencomputer.dev/agents/overview)
 agent searches X for you, scores each new post against a brief you write,
 and a small app ranks what's left. You read the post, open it on X, and
 reply yourself. Nothing here writes or posts for you.
@@ -18,16 +18,96 @@ you ◄── feed: Open · Filtered · Handled ◄─────────�
 
 - **Searches** are saved X queries: a watchlist of people, a competitor, a
   topic. Each keeps a cursor, so a post is fetched and paid for once.
-- **A scout run** fetches new posts for every search that is due, stores
-  them, and scores each from 0 to 100 against your brief: is it on your
-  topics, and can you add something to it. Code does the searching,
-  storing and bookkeeping; the model only scores.
-- **The feed** shows posts scoring 60 or more in *Open*, ranked by score
-  and freshness, and the rest in *Filtered*.
+- **A scout run** fetches new posts for every search that is due and scores
+  each from 0 to 100 against your brief: is it on your topics, and can you
+  add something to it.
+- **The feed** shows posts scoring 60 or more in *Open*, ranked by score and
+  freshness, and the rest in *Filtered*.
 - **Your marks teach it.** Mark an Open post *Not relevant*, or a Filtered
   one *Relevant*, with an optional note. The next scout run reads your marks
   as examples, and a learning run folds them into short rules in your brief,
   then re-scores the feed.
+
+## The agent
+
+The agent is a TypeScript function in
+[`agent.ts`](opencomputer/agents/yap/agent.ts). OpenComputer calls it before
+each model step and runs everything around it: the model, the tool calls,
+the session. The function only decides the model, the tools and the
+instructions, here from the [payload](https://docs.opencomputer.dev/agents/inputs)
+that started the session (abridged):
+
+```ts
+export default function Yap() {
+  const input = useInput();
+  useModel("anthropic/claude-sonnet-5.5");
+  const role = roleOf(input.payload);
+  if (role === "scout") {
+    useTool(getWork);
+    useTool(runSearch);
+    useTool(nextPosts);
+    useTool(submitJudgments);
+    useTool(report);
+    return SCOUT_INSTRUCTIONS;
+  }
+  // role === "learning": the tools that turn marks into rules
+}
+```
+
+A session started without a role gets no tools at all.
+
+**Tools do the work; the model judges.** [Tools](https://docs.opencomputer.dev/agents/tools) are plain
+TypeScript. [`run_search`](opencomputer/agents/yap/tools/run-search.ts)
+takes only a search id: it claims the search from the app, calls X with the
+stored query and cursor, and hands the posts to the app. The model gets
+counts back, then reads posts in batches of 25 and submits a score and a
+one-line reason for each. It never sees a query, a cursor or a key, and it
+can only score posts the app holds.
+
+**Keys stay outside the agent.** The X API is a declared connection with its
+token as a [secret](https://docs.opencomputer.dev/agents/secrets)
+([`connections/x.ts`](opencomputer/agents/yap/connections/x.ts)):
+
+```ts
+export const xApi = defineConnection({
+  id: "x-api",
+  origin: "https://api.x.com",
+  methods: ["GET"],
+  pathPrefix: "/2/",
+  headers: { Authorization: bearer(useSecret("X_BEARER_TOKEN")) },
+});
+```
+
+OpenComputer attaches the token at its outbound proxy, only for GET requests
+to `api.x.com/2/`. Every post the agent reads was written by a stranger; a
+post that tries to talk the model into leaking a key finds none in its
+reach. The app's own token works the same way.
+
+**Runs start from a schedule or from the app.** In production the scout runs
+on a [schedule](https://docs.opencomputer.dev/agents/schedules)
+([`schedules/scout.ts`](opencomputer/agents/yap/schedules/scout.ts), abridged):
+
+```ts
+export default defineSchedule({
+  id: "scout",
+  cron: "*/5 * * * *",
+  overlap: "skip",
+  dispatch: { text: "Work the searches that are due.", payload: { role: "scout" } },
+});
+```
+
+The app's Refresh button, and the learning runs after you mark posts, start
+the same agent through the [API](https://docs.opencomputer.dev/agents/api): a new
+[session](https://docs.opencomputer.dev/agents/sessions) and one turn with a payload.
+
+**The report is the session's result.** The run ends by calling `report`, a
+[result tool](https://docs.opencomputer.dev/agents/tools#the-session-result) whose output schema
+OpenComputer checks before committing it, so every run leaves a structured
+record: searches run, posts stored and scored, and a note.
+
+`npm run deploy:agent` builds the agent directory into an immutable
+[deployment](https://docs.opencomputer.dev/agents/deployments); every session stays on the deployment it
+started with.
 
 ## Run it locally
 
@@ -142,16 +222,8 @@ every search not run in the last five minutes.
 - **OpenComputer:** the agent's model calls and machine time, billed to your
   OpenComputer organization.
 
-## How it's built
+## The app
 
-- **The agent** (`opencomputer/`) is one agent with two roles, chosen by
-  the payload that starts it. A scout run searches, stores and scores; a
-  learning run turns your marks into rules. Its tools are typed: the model
-  can only submit a score for a post the app holds, and never sees a query,
-  a cursor or a key.
-- **Credentials stay outside the agent.** The X token and the app token are
-  OpenComputer secrets, attached at its outbound proxy. A post that tries to
-  talk the model into leaking a key finds none to leak.
 - **The app** (`src/`) is TanStack Start, built for Cloudflare Workers. The
   browser talks only to the app's routes; the agent reaches `/api/agent/*`
   with its token. Through the tunnel, only those routes answer.
@@ -161,8 +233,6 @@ every search not run in the last five minutes.
   no database account; delete that directory to start over. To use a hosted
   Supabase project, apply `supabase/migrations/` and set `SUPABASE_URL` and
   `SUPABASE_SECRET_KEY` in `.env.local`.
-- **In production** the agent also runs on a five-minute schedule, and the
-  feed offers what it finds as "N new".
 
 `AGENTS.md` maps the code in more detail.
 
