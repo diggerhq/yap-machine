@@ -1,9 +1,8 @@
 import { defineConfig } from "vitest/config";
 
-// Unit tests only (dev/test); they import src/ directly and never start Vite, so this
-// config stays independent of vite.config.ts and its plugins. Server tests
-// run in node; component tests opt into happy-dom per file with
-// `// @vitest-environment happy-dom` at the top.
+// The unit tests (dev/test). They import the app, the agent and the scripts
+// directly and never start Vite, so this config stays independent of
+// vite.config.ts and its plugins. SQL runs in PGlite (dev/test/pg.ts).
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {

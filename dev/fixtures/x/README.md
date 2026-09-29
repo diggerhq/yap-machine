@@ -11,6 +11,3 @@ returns. Every handle, name and text is invented; no real post appears here.
   further `next_token` the tool must not follow.
 - `empty.json` no new posts: no `data`, `result_count` 0, no `newest_id`.
 - `rejected.json` a 400 for a `since_id` outside the window.
-
-`recorded/` holds the first live response, with every text and handle
-replaced by authored ones (M4).

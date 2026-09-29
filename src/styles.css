@@ -191,7 +191,9 @@
   *,
   *::before,
   *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: a reduced-motion preference must override every component's timing. */
     transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: as above. */
     animation-duration: 0.01ms !important;
   }
 }

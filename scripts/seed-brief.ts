@@ -1,9 +1,8 @@
-// `npm run seed:brief -- <path>`: load a brief. Makes its owner sections the
-// active brief version and upserts its searches table (enabled), and writes
-// the brief text to brief.local.md (ignored). The database is the app's:
-// the local one while `npm run dev` runs, or the Supabase project in
-// .env.local.
-import { readFileSync, writeFileSync } from "node:fs";
+// `npm run seed:brief -- <path>`: load a brief. Makes its sections the active
+// brief version and upserts its searches table (enabled). The database is
+// the app's: the local one while `npm run dev` runs, or the Supabase project
+// in .env.local.
+import { readFileSync } from "node:fs";
 import { isRefusal, supabaseDb } from "../src/server/db";
 import { parseBrief } from "./brief-file";
 import { appEnv, usesLocalDb } from "./local-env";
@@ -37,7 +36,6 @@ try {
 if (isRefusal(version)) throw new Error(`Brief refused: ${version.error}`);
 const searches = await db.rpc("upsert_searches", { p_searches: brief.searches });
 if (isRefusal(searches)) throw new Error(`Searches refused: ${searches.error}`);
-writeFileSync("brief.local.md", `${brief.ownerBody}\n`);
 console.log(
   `Loaded brief version ${String((version as { versionId: number }).versionId)} and ${String(brief.searches.length)} searches.`,
 );

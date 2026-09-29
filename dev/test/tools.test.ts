@@ -22,7 +22,7 @@ import { serve } from "./serve";
 const FIXTURES = join(import.meta.dirname, "..", "fixtures", "x");
 const fixture = (name: string) => readFileSync(join(FIXTURES, name), "utf8");
 
-const ORIGIN = "https://yap-machine.mixflow.workers.dev";
+const ORIGIN = "https://yap-machine-app.example.com";
 const TOKEN = "k".repeat(43);
 const CONFIG: Config = {
   supabase: { url: "https://db.example", secretKey: "unused" },

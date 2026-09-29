@@ -1,9 +1,9 @@
 # Example brief
 
-A brief tells the scout what is worth answering. This one is for a fictional
-founder of a fictional agent-hosting product; copy it, make it yours, and
-load it with `npm run seed:brief -- <your copy>`. Keep your real brief out of
-Git: `brief.local.md` and any `*.local.md` file are ignored.
+A brief tells the scout what is worth answering. This one is for a made-up
+founder of a made-up agent-hosting product. Copy it to `brief.local.md`
+(ignored by Git, like every `*.local.md` file), make it yours, and load it
+with `npm run seed:brief -- brief.local.md`.
 
 Everything below the line is loaded. The seven sections before `## Searches`
 become the brief the model reads; each must say something. The `## Searches`

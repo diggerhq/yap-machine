@@ -36,7 +36,7 @@ async function hostWaitUntil(work: Promise<unknown>): Promise<void> {
   const settled = work.catch((cause: unknown) => console.error(cause));
   try {
     // The Workers runtime keeps the request's context reachable through this
-    // module; elsewhere (the Vite dev server) the promise simply runs on.
+    // module; elsewhere (the Vite dev server) the promise runs on by itself.
     const specifier = "cloudflare:workers";
     const workers = (await import(/* @vite-ignore */ specifier)) as { waitUntil?: (p: Promise<unknown>) => void };
     workers.waitUntil?.(settled);
