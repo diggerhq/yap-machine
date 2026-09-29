@@ -10,33 +10,343 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiSplatRouteImport } from './routes/api/$'
+import { Route as ApiBriefRouteImport } from './routes/api/brief'
+import { Route as ApiFeedRouteImport } from './routes/api/feed'
+import { Route as ApiSearchesRouteImport } from './routes/api/searches'
+import { Route as ApiStatusRouteImport } from './routes/api/status'
+import { Route as ApiAgentSplatRouteImport } from './routes/api/agent/$'
+import { Route as ApiAgentCandidatesRouteImport } from './routes/api/agent/candidates'
+import { Route as ApiAgentJudgmentsRouteImport } from './routes/api/agent/judgments'
+import { Route as ApiAgentLearningRouteImport } from './routes/api/agent/learning'
+import { Route as ApiAgentReportRouteImport } from './routes/api/agent/report'
+import { Route as ApiAgentWorkRouteImport } from './routes/api/agent/work'
+import { Route as ApiBriefOwnerRouteImport } from './routes/api/brief.owner'
+import { Route as ApiFeedNewCountRouteImport } from './routes/api/feed.new-count'
+import { Route as ApiSearchesIdRouteImport } from './routes/api/searches.$id'
+import { Route as ApiAgentLearningRescoresRouteImport } from './routes/api/agent/learning.rescores'
+import { Route as ApiAgentLearningRulesRouteImport } from './routes/api/agent/learning.rules'
+import { Route as ApiAgentQueueLeaseRouteImport } from './routes/api/agent/queue.lease'
+import { Route as ApiBriefRulesRuleIdRouteImport } from './routes/api/brief.rules.$ruleId'
+import { Route as ApiBriefVersionsIdRouteImport } from './routes/api/brief.versions.$id'
+import { Route as ApiPostsIdFeedbackRouteImport } from './routes/api/posts.$id.feedback'
+import { Route as ApiPostsIdOpenRouteImport } from './routes/api/posts.$id.open'
+import { Route as ApiAgentLearningRescoresLeaseRouteImport } from './routes/api/agent/learning.rescores.lease'
+import { Route as ApiAgentSearchesIdClaimRouteImport } from './routes/api/agent/searches.$id.claim'
+import { Route as ApiBriefVersionsIdRestoreRouteImport } from './routes/api/brief.versions.$id.restore'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSplatRoute = ApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBriefRoute = ApiBriefRouteImport.update({
+  id: '/api/brief',
+  path: '/api/brief',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFeedRoute = ApiFeedRouteImport.update({
+  id: '/api/feed',
+  path: '/api/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSearchesRoute = ApiSearchesRouteImport.update({
+  id: '/api/searches',
+  path: '/api/searches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStatusRoute = ApiStatusRouteImport.update({
+  id: '/api/status',
+  path: '/api/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentSplatRoute = ApiAgentSplatRouteImport.update({
+  id: '/api/agent/$',
+  path: '/api/agent/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentCandidatesRoute = ApiAgentCandidatesRouteImport.update({
+  id: '/api/agent/candidates',
+  path: '/api/agent/candidates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentJudgmentsRoute = ApiAgentJudgmentsRouteImport.update({
+  id: '/api/agent/judgments',
+  path: '/api/agent/judgments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentLearningRoute = ApiAgentLearningRouteImport.update({
+  id: '/api/agent/learning',
+  path: '/api/agent/learning',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentReportRoute = ApiAgentReportRouteImport.update({
+  id: '/api/agent/report',
+  path: '/api/agent/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentWorkRoute = ApiAgentWorkRouteImport.update({
+  id: '/api/agent/work',
+  path: '/api/agent/work',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBriefOwnerRoute = ApiBriefOwnerRouteImport.update({
+  id: '/owner',
+  path: '/owner',
+  getParentRoute: () => ApiBriefRoute,
+} as any)
+const ApiFeedNewCountRoute = ApiFeedNewCountRouteImport.update({
+  id: '/new-count',
+  path: '/new-count',
+  getParentRoute: () => ApiFeedRoute,
+} as any)
+const ApiSearchesIdRoute = ApiSearchesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiSearchesRoute,
+} as any)
+const ApiAgentLearningRescoresRoute =
+  ApiAgentLearningRescoresRouteImport.update({
+    id: '/rescores',
+    path: '/rescores',
+    getParentRoute: () => ApiAgentLearningRoute,
+  } as any)
+const ApiAgentLearningRulesRoute = ApiAgentLearningRulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => ApiAgentLearningRoute,
+} as any)
+const ApiAgentQueueLeaseRoute = ApiAgentQueueLeaseRouteImport.update({
+  id: '/api/agent/queue/lease',
+  path: '/api/agent/queue/lease',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBriefRulesRuleIdRoute = ApiBriefRulesRuleIdRouteImport.update({
+  id: '/rules/$ruleId',
+  path: '/rules/$ruleId',
+  getParentRoute: () => ApiBriefRoute,
+} as any)
+const ApiBriefVersionsIdRoute = ApiBriefVersionsIdRouteImport.update({
+  id: '/versions/$id',
+  path: '/versions/$id',
+  getParentRoute: () => ApiBriefRoute,
+} as any)
+const ApiPostsIdFeedbackRoute = ApiPostsIdFeedbackRouteImport.update({
+  id: '/api/posts/$id/feedback',
+  path: '/api/posts/$id/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPostsIdOpenRoute = ApiPostsIdOpenRouteImport.update({
+  id: '/api/posts/$id/open',
+  path: '/api/posts/$id/open',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentLearningRescoresLeaseRoute =
+  ApiAgentLearningRescoresLeaseRouteImport.update({
+    id: '/lease',
+    path: '/lease',
+    getParentRoute: () => ApiAgentLearningRescoresRoute,
+  } as any)
+const ApiAgentSearchesIdClaimRoute = ApiAgentSearchesIdClaimRouteImport.update({
+  id: '/api/agent/searches/$id/claim',
+  path: '/api/agent/searches/$id/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBriefVersionsIdRestoreRoute =
+  ApiBriefVersionsIdRestoreRouteImport.update({
+    id: '/restore',
+    path: '/restore',
+    getParentRoute: () => ApiBriefVersionsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/$': typeof ApiSplatRoute
+  '/api/brief': typeof ApiBriefRouteWithChildren
+  '/api/feed': typeof ApiFeedRouteWithChildren
+  '/api/searches': typeof ApiSearchesRouteWithChildren
+  '/api/status': typeof ApiStatusRoute
+  '/api/agent/$': typeof ApiAgentSplatRoute
+  '/api/agent/candidates': typeof ApiAgentCandidatesRoute
+  '/api/agent/judgments': typeof ApiAgentJudgmentsRoute
+  '/api/agent/learning': typeof ApiAgentLearningRouteWithChildren
+  '/api/agent/report': typeof ApiAgentReportRoute
+  '/api/agent/work': typeof ApiAgentWorkRoute
+  '/api/brief/owner': typeof ApiBriefOwnerRoute
+  '/api/feed/new-count': typeof ApiFeedNewCountRoute
+  '/api/searches/$id': typeof ApiSearchesIdRoute
+  '/api/agent/learning/rescores': typeof ApiAgentLearningRescoresRouteWithChildren
+  '/api/agent/learning/rules': typeof ApiAgentLearningRulesRoute
+  '/api/agent/queue/lease': typeof ApiAgentQueueLeaseRoute
+  '/api/brief/rules/$ruleId': typeof ApiBriefRulesRuleIdRoute
+  '/api/brief/versions/$id': typeof ApiBriefVersionsIdRouteWithChildren
+  '/api/posts/$id/feedback': typeof ApiPostsIdFeedbackRoute
+  '/api/posts/$id/open': typeof ApiPostsIdOpenRoute
+  '/api/agent/learning/rescores/lease': typeof ApiAgentLearningRescoresLeaseRoute
+  '/api/agent/searches/$id/claim': typeof ApiAgentSearchesIdClaimRoute
+  '/api/brief/versions/$id/restore': typeof ApiBriefVersionsIdRestoreRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/$': typeof ApiSplatRoute
+  '/api/brief': typeof ApiBriefRouteWithChildren
+  '/api/feed': typeof ApiFeedRouteWithChildren
+  '/api/searches': typeof ApiSearchesRouteWithChildren
+  '/api/status': typeof ApiStatusRoute
+  '/api/agent/$': typeof ApiAgentSplatRoute
+  '/api/agent/candidates': typeof ApiAgentCandidatesRoute
+  '/api/agent/judgments': typeof ApiAgentJudgmentsRoute
+  '/api/agent/learning': typeof ApiAgentLearningRouteWithChildren
+  '/api/agent/report': typeof ApiAgentReportRoute
+  '/api/agent/work': typeof ApiAgentWorkRoute
+  '/api/brief/owner': typeof ApiBriefOwnerRoute
+  '/api/feed/new-count': typeof ApiFeedNewCountRoute
+  '/api/searches/$id': typeof ApiSearchesIdRoute
+  '/api/agent/learning/rescores': typeof ApiAgentLearningRescoresRouteWithChildren
+  '/api/agent/learning/rules': typeof ApiAgentLearningRulesRoute
+  '/api/agent/queue/lease': typeof ApiAgentQueueLeaseRoute
+  '/api/brief/rules/$ruleId': typeof ApiBriefRulesRuleIdRoute
+  '/api/brief/versions/$id': typeof ApiBriefVersionsIdRouteWithChildren
+  '/api/posts/$id/feedback': typeof ApiPostsIdFeedbackRoute
+  '/api/posts/$id/open': typeof ApiPostsIdOpenRoute
+  '/api/agent/learning/rescores/lease': typeof ApiAgentLearningRescoresLeaseRoute
+  '/api/agent/searches/$id/claim': typeof ApiAgentSearchesIdClaimRoute
+  '/api/brief/versions/$id/restore': typeof ApiBriefVersionsIdRestoreRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/$': typeof ApiSplatRoute
+  '/api/brief': typeof ApiBriefRouteWithChildren
+  '/api/feed': typeof ApiFeedRouteWithChildren
+  '/api/searches': typeof ApiSearchesRouteWithChildren
+  '/api/status': typeof ApiStatusRoute
+  '/api/agent/$': typeof ApiAgentSplatRoute
+  '/api/agent/candidates': typeof ApiAgentCandidatesRoute
+  '/api/agent/judgments': typeof ApiAgentJudgmentsRoute
+  '/api/agent/learning': typeof ApiAgentLearningRouteWithChildren
+  '/api/agent/report': typeof ApiAgentReportRoute
+  '/api/agent/work': typeof ApiAgentWorkRoute
+  '/api/brief/owner': typeof ApiBriefOwnerRoute
+  '/api/feed/new-count': typeof ApiFeedNewCountRoute
+  '/api/searches/$id': typeof ApiSearchesIdRoute
+  '/api/agent/learning/rescores': typeof ApiAgentLearningRescoresRouteWithChildren
+  '/api/agent/learning/rules': typeof ApiAgentLearningRulesRoute
+  '/api/agent/queue/lease': typeof ApiAgentQueueLeaseRoute
+  '/api/brief/rules/$ruleId': typeof ApiBriefRulesRuleIdRoute
+  '/api/brief/versions/$id': typeof ApiBriefVersionsIdRouteWithChildren
+  '/api/posts/$id/feedback': typeof ApiPostsIdFeedbackRoute
+  '/api/posts/$id/open': typeof ApiPostsIdOpenRoute
+  '/api/agent/learning/rescores/lease': typeof ApiAgentLearningRescoresLeaseRoute
+  '/api/agent/searches/$id/claim': typeof ApiAgentSearchesIdClaimRoute
+  '/api/brief/versions/$id/restore': typeof ApiBriefVersionsIdRestoreRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/api/$'
+    | '/api/brief'
+    | '/api/feed'
+    | '/api/searches'
+    | '/api/status'
+    | '/api/agent/$'
+    | '/api/agent/candidates'
+    | '/api/agent/judgments'
+    | '/api/agent/learning'
+    | '/api/agent/report'
+    | '/api/agent/work'
+    | '/api/brief/owner'
+    | '/api/feed/new-count'
+    | '/api/searches/$id'
+    | '/api/agent/learning/rescores'
+    | '/api/agent/learning/rules'
+    | '/api/agent/queue/lease'
+    | '/api/brief/rules/$ruleId'
+    | '/api/brief/versions/$id'
+    | '/api/posts/$id/feedback'
+    | '/api/posts/$id/open'
+    | '/api/agent/learning/rescores/lease'
+    | '/api/agent/searches/$id/claim'
+    | '/api/brief/versions/$id/restore'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/api/$'
+    | '/api/brief'
+    | '/api/feed'
+    | '/api/searches'
+    | '/api/status'
+    | '/api/agent/$'
+    | '/api/agent/candidates'
+    | '/api/agent/judgments'
+    | '/api/agent/learning'
+    | '/api/agent/report'
+    | '/api/agent/work'
+    | '/api/brief/owner'
+    | '/api/feed/new-count'
+    | '/api/searches/$id'
+    | '/api/agent/learning/rescores'
+    | '/api/agent/learning/rules'
+    | '/api/agent/queue/lease'
+    | '/api/brief/rules/$ruleId'
+    | '/api/brief/versions/$id'
+    | '/api/posts/$id/feedback'
+    | '/api/posts/$id/open'
+    | '/api/agent/learning/rescores/lease'
+    | '/api/agent/searches/$id/claim'
+    | '/api/brief/versions/$id/restore'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/$'
+    | '/api/brief'
+    | '/api/feed'
+    | '/api/searches'
+    | '/api/status'
+    | '/api/agent/$'
+    | '/api/agent/candidates'
+    | '/api/agent/judgments'
+    | '/api/agent/learning'
+    | '/api/agent/report'
+    | '/api/agent/work'
+    | '/api/brief/owner'
+    | '/api/feed/new-count'
+    | '/api/searches/$id'
+    | '/api/agent/learning/rescores'
+    | '/api/agent/learning/rules'
+    | '/api/agent/queue/lease'
+    | '/api/brief/rules/$ruleId'
+    | '/api/brief/versions/$id'
+    | '/api/posts/$id/feedback'
+    | '/api/posts/$id/open'
+    | '/api/agent/learning/rescores/lease'
+    | '/api/agent/searches/$id/claim'
+    | '/api/brief/versions/$id/restore'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiSplatRoute: typeof ApiSplatRoute
+  ApiBriefRoute: typeof ApiBriefRouteWithChildren
+  ApiFeedRoute: typeof ApiFeedRouteWithChildren
+  ApiSearchesRoute: typeof ApiSearchesRouteWithChildren
+  ApiStatusRoute: typeof ApiStatusRoute
+  ApiAgentSplatRoute: typeof ApiAgentSplatRoute
+  ApiAgentCandidatesRoute: typeof ApiAgentCandidatesRoute
+  ApiAgentJudgmentsRoute: typeof ApiAgentJudgmentsRoute
+  ApiAgentLearningRoute: typeof ApiAgentLearningRouteWithChildren
+  ApiAgentReportRoute: typeof ApiAgentReportRoute
+  ApiAgentWorkRoute: typeof ApiAgentWorkRoute
+  ApiAgentQueueLeaseRoute: typeof ApiAgentQueueLeaseRoute
+  ApiPostsIdFeedbackRoute: typeof ApiPostsIdFeedbackRoute
+  ApiPostsIdOpenRoute: typeof ApiPostsIdOpenRoute
+  ApiAgentSearchesIdClaimRoute: typeof ApiAgentSearchesIdClaimRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +358,271 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/brief': {
+      id: '/api/brief'
+      path: '/api/brief'
+      fullPath: '/api/brief'
+      preLoaderRoute: typeof ApiBriefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/feed': {
+      id: '/api/feed'
+      path: '/api/feed'
+      fullPath: '/api/feed'
+      preLoaderRoute: typeof ApiFeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/searches': {
+      id: '/api/searches'
+      path: '/api/searches'
+      fullPath: '/api/searches'
+      preLoaderRoute: typeof ApiSearchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/status': {
+      id: '/api/status'
+      path: '/api/status'
+      fullPath: '/api/status'
+      preLoaderRoute: typeof ApiStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/$': {
+      id: '/api/agent/$'
+      path: '/api/agent/$'
+      fullPath: '/api/agent/$'
+      preLoaderRoute: typeof ApiAgentSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/candidates': {
+      id: '/api/agent/candidates'
+      path: '/api/agent/candidates'
+      fullPath: '/api/agent/candidates'
+      preLoaderRoute: typeof ApiAgentCandidatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/judgments': {
+      id: '/api/agent/judgments'
+      path: '/api/agent/judgments'
+      fullPath: '/api/agent/judgments'
+      preLoaderRoute: typeof ApiAgentJudgmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/learning': {
+      id: '/api/agent/learning'
+      path: '/api/agent/learning'
+      fullPath: '/api/agent/learning'
+      preLoaderRoute: typeof ApiAgentLearningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/report': {
+      id: '/api/agent/report'
+      path: '/api/agent/report'
+      fullPath: '/api/agent/report'
+      preLoaderRoute: typeof ApiAgentReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/work': {
+      id: '/api/agent/work'
+      path: '/api/agent/work'
+      fullPath: '/api/agent/work'
+      preLoaderRoute: typeof ApiAgentWorkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/brief/owner': {
+      id: '/api/brief/owner'
+      path: '/owner'
+      fullPath: '/api/brief/owner'
+      preLoaderRoute: typeof ApiBriefOwnerRouteImport
+      parentRoute: typeof ApiBriefRoute
+    }
+    '/api/feed/new-count': {
+      id: '/api/feed/new-count'
+      path: '/new-count'
+      fullPath: '/api/feed/new-count'
+      preLoaderRoute: typeof ApiFeedNewCountRouteImport
+      parentRoute: typeof ApiFeedRoute
+    }
+    '/api/searches/$id': {
+      id: '/api/searches/$id'
+      path: '/$id'
+      fullPath: '/api/searches/$id'
+      preLoaderRoute: typeof ApiSearchesIdRouteImport
+      parentRoute: typeof ApiSearchesRoute
+    }
+    '/api/agent/learning/rescores': {
+      id: '/api/agent/learning/rescores'
+      path: '/rescores'
+      fullPath: '/api/agent/learning/rescores'
+      preLoaderRoute: typeof ApiAgentLearningRescoresRouteImport
+      parentRoute: typeof ApiAgentLearningRoute
+    }
+    '/api/agent/learning/rules': {
+      id: '/api/agent/learning/rules'
+      path: '/rules'
+      fullPath: '/api/agent/learning/rules'
+      preLoaderRoute: typeof ApiAgentLearningRulesRouteImport
+      parentRoute: typeof ApiAgentLearningRoute
+    }
+    '/api/agent/queue/lease': {
+      id: '/api/agent/queue/lease'
+      path: '/api/agent/queue/lease'
+      fullPath: '/api/agent/queue/lease'
+      preLoaderRoute: typeof ApiAgentQueueLeaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/brief/rules/$ruleId': {
+      id: '/api/brief/rules/$ruleId'
+      path: '/rules/$ruleId'
+      fullPath: '/api/brief/rules/$ruleId'
+      preLoaderRoute: typeof ApiBriefRulesRuleIdRouteImport
+      parentRoute: typeof ApiBriefRoute
+    }
+    '/api/brief/versions/$id': {
+      id: '/api/brief/versions/$id'
+      path: '/versions/$id'
+      fullPath: '/api/brief/versions/$id'
+      preLoaderRoute: typeof ApiBriefVersionsIdRouteImport
+      parentRoute: typeof ApiBriefRoute
+    }
+    '/api/posts/$id/feedback': {
+      id: '/api/posts/$id/feedback'
+      path: '/api/posts/$id/feedback'
+      fullPath: '/api/posts/$id/feedback'
+      preLoaderRoute: typeof ApiPostsIdFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/posts/$id/open': {
+      id: '/api/posts/$id/open'
+      path: '/api/posts/$id/open'
+      fullPath: '/api/posts/$id/open'
+      preLoaderRoute: typeof ApiPostsIdOpenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/learning/rescores/lease': {
+      id: '/api/agent/learning/rescores/lease'
+      path: '/lease'
+      fullPath: '/api/agent/learning/rescores/lease'
+      preLoaderRoute: typeof ApiAgentLearningRescoresLeaseRouteImport
+      parentRoute: typeof ApiAgentLearningRescoresRoute
+    }
+    '/api/agent/searches/$id/claim': {
+      id: '/api/agent/searches/$id/claim'
+      path: '/api/agent/searches/$id/claim'
+      fullPath: '/api/agent/searches/$id/claim'
+      preLoaderRoute: typeof ApiAgentSearchesIdClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/brief/versions/$id/restore': {
+      id: '/api/brief/versions/$id/restore'
+      path: '/restore'
+      fullPath: '/api/brief/versions/$id/restore'
+      preLoaderRoute: typeof ApiBriefVersionsIdRestoreRouteImport
+      parentRoute: typeof ApiBriefVersionsIdRoute
+    }
   }
 }
 
+interface ApiBriefVersionsIdRouteChildren {
+  ApiBriefVersionsIdRestoreRoute: typeof ApiBriefVersionsIdRestoreRoute
+}
+
+const ApiBriefVersionsIdRouteChildren: ApiBriefVersionsIdRouteChildren = {
+  ApiBriefVersionsIdRestoreRoute: ApiBriefVersionsIdRestoreRoute,
+}
+
+const ApiBriefVersionsIdRouteWithChildren =
+  ApiBriefVersionsIdRoute._addFileChildren(ApiBriefVersionsIdRouteChildren)
+
+interface ApiBriefRouteChildren {
+  ApiBriefOwnerRoute: typeof ApiBriefOwnerRoute
+  ApiBriefRulesRuleIdRoute: typeof ApiBriefRulesRuleIdRoute
+  ApiBriefVersionsIdRoute: typeof ApiBriefVersionsIdRouteWithChildren
+}
+
+const ApiBriefRouteChildren: ApiBriefRouteChildren = {
+  ApiBriefOwnerRoute: ApiBriefOwnerRoute,
+  ApiBriefRulesRuleIdRoute: ApiBriefRulesRuleIdRoute,
+  ApiBriefVersionsIdRoute: ApiBriefVersionsIdRouteWithChildren,
+}
+
+const ApiBriefRouteWithChildren = ApiBriefRoute._addFileChildren(
+  ApiBriefRouteChildren,
+)
+
+interface ApiFeedRouteChildren {
+  ApiFeedNewCountRoute: typeof ApiFeedNewCountRoute
+}
+
+const ApiFeedRouteChildren: ApiFeedRouteChildren = {
+  ApiFeedNewCountRoute: ApiFeedNewCountRoute,
+}
+
+const ApiFeedRouteWithChildren =
+  ApiFeedRoute._addFileChildren(ApiFeedRouteChildren)
+
+interface ApiSearchesRouteChildren {
+  ApiSearchesIdRoute: typeof ApiSearchesIdRoute
+}
+
+const ApiSearchesRouteChildren: ApiSearchesRouteChildren = {
+  ApiSearchesIdRoute: ApiSearchesIdRoute,
+}
+
+const ApiSearchesRouteWithChildren = ApiSearchesRoute._addFileChildren(
+  ApiSearchesRouteChildren,
+)
+
+interface ApiAgentLearningRescoresRouteChildren {
+  ApiAgentLearningRescoresLeaseRoute: typeof ApiAgentLearningRescoresLeaseRoute
+}
+
+const ApiAgentLearningRescoresRouteChildren: ApiAgentLearningRescoresRouteChildren =
+  {
+    ApiAgentLearningRescoresLeaseRoute: ApiAgentLearningRescoresLeaseRoute,
+  }
+
+const ApiAgentLearningRescoresRouteWithChildren =
+  ApiAgentLearningRescoresRoute._addFileChildren(
+    ApiAgentLearningRescoresRouteChildren,
+  )
+
+interface ApiAgentLearningRouteChildren {
+  ApiAgentLearningRescoresRoute: typeof ApiAgentLearningRescoresRouteWithChildren
+  ApiAgentLearningRulesRoute: typeof ApiAgentLearningRulesRoute
+}
+
+const ApiAgentLearningRouteChildren: ApiAgentLearningRouteChildren = {
+  ApiAgentLearningRescoresRoute: ApiAgentLearningRescoresRouteWithChildren,
+  ApiAgentLearningRulesRoute: ApiAgentLearningRulesRoute,
+}
+
+const ApiAgentLearningRouteWithChildren =
+  ApiAgentLearningRoute._addFileChildren(ApiAgentLearningRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiSplatRoute: ApiSplatRoute,
+  ApiBriefRoute: ApiBriefRouteWithChildren,
+  ApiFeedRoute: ApiFeedRouteWithChildren,
+  ApiSearchesRoute: ApiSearchesRouteWithChildren,
+  ApiStatusRoute: ApiStatusRoute,
+  ApiAgentSplatRoute: ApiAgentSplatRoute,
+  ApiAgentCandidatesRoute: ApiAgentCandidatesRoute,
+  ApiAgentJudgmentsRoute: ApiAgentJudgmentsRoute,
+  ApiAgentLearningRoute: ApiAgentLearningRouteWithChildren,
+  ApiAgentReportRoute: ApiAgentReportRoute,
+  ApiAgentWorkRoute: ApiAgentWorkRoute,
+  ApiAgentQueueLeaseRoute: ApiAgentQueueLeaseRoute,
+  ApiPostsIdFeedbackRoute: ApiPostsIdFeedbackRoute,
+  ApiPostsIdOpenRoute: ApiPostsIdOpenRoute,
+  ApiAgentSearchesIdClaimRoute: ApiAgentSearchesIdClaimRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
