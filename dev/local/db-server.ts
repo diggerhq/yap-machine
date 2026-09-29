@@ -13,12 +13,15 @@ import { PGlite } from "@electric-sql/pglite";
 export const DB_PORT = 54399;
 const ROOT = join(import.meta.dirname, "..", "..");
 const DATA = join(import.meta.dirname, ".pglite");
+/** The sample data lives apart, so loading it never touches the database `npm run dev` keeps. */
+export const SAMPLE_DATA = join(import.meta.dirname, ".pglite-sample");
 const FUNCTION = /^\/rest\/v1\/rpc\/([a-z_]+)$/;
 
-export async function openDb(options: { reset?: boolean; seed?: boolean } = {}): Promise<PGlite> {
-  if (options.reset && existsSync(DATA)) rmSync(DATA, { recursive: true });
-  const fresh = !existsSync(DATA);
-  const pg = new PGlite(DATA);
+export async function openDb(options: { reset?: boolean; seed?: boolean; dir?: string } = {}): Promise<PGlite> {
+  const dir = options.dir ?? DATA;
+  if (options.reset && existsSync(dir)) rmSync(dir, { recursive: true });
+  const fresh = !existsSync(dir);
+  const pg = new PGlite(dir);
   if (fresh) {
     await pg.exec("create role anon; create role authenticated; create role service_role;");
     const migrations = join(ROOT, "supabase", "migrations");

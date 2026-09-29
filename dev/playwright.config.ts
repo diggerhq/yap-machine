@@ -13,7 +13,7 @@ export default defineConfig({
   reporter: [["list"]],
   use: { baseURL: "http://localhost:3300", screenshot: "off" },
   webServer: {
-    command: "npx tsx dev/local/run.ts --seed",
+    command: "npx tsx dev/local/run.ts",
     cwd: fileURLToPath(new URL("..", import.meta.url)),
     url: "http://localhost:3300/api/status",
     reuseExistingServer: false,

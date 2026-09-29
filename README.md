@@ -35,10 +35,10 @@ Then:
 npm install
 cp .env.example .env.local                           # set OPENCOMPUTER_API_KEY
 cp opencomputer/.env.example opencomputer/.env.local # set X_BEARER_TOKEN
-npm run local
+npm run dev
 ```
 
-`npm run local` does everything in one go:
+`npm run dev` does everything in one go:
 
 1. generates the token the agent uses on the app's routes, into both
    `.env.local` files;
@@ -61,7 +61,7 @@ Open http://localhost:3300. Posts appear as the run scores them. Run
 once its interval has passed. Follow a run with the
 `npx opencomputer session attach <id>` command that `scout:once` prints.
 
-Each `npm run local` gets a new tunnel address, so it redeploys the agent,
+Each `npm run dev` gets a new tunnel address, so it redeploys the agent,
 and `opencomputer/agents/yap/connections/app.ts` shows as changed. That file
 holds your app's address; don't commit the tunnel's.
 
@@ -116,7 +116,7 @@ this repository; `*.local.md` files are ignored for your working copy.
 
 ```bash
 npm run check                      # typecheck, lint, tests (SQL runs in PGlite), build
-npm run dev:local -- --seed        # the app over authored sample data, no agent
+npm run dev:sample                 # the app over authored sample data, no agent
 npx playwright test --config dev/playwright.config.ts   # captures every screen
 ```
 

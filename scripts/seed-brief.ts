@@ -1,7 +1,7 @@
 // `npm run seed:brief -- <path>`: load a brief. Makes its owner sections the
 // active brief version and upserts its searches table (enabled), and writes
 // the brief text to brief.local.md (ignored). The database is the app's:
-// the local one while `npm run local` runs, or the Supabase project in
+// the local one while `npm run dev` runs, or the Supabase project in
 // .env.local.
 import { readFileSync, writeFileSync } from "node:fs";
 import { isRefusal, supabaseDb } from "../src/server/db";
@@ -29,7 +29,7 @@ try {
   });
 } catch (cause) {
   if (usesLocalDb(env)) {
-    console.error("The local database is not running. Start `npm run local` first, then run this in another terminal.");
+    console.error("The local database is not running. Start `npm run dev` first, then run this in another terminal.");
     process.exit(1);
   }
   throw cause;

@@ -1,4 +1,4 @@
-// `npm run local`: the whole yap machine from this checkout. The app and its
+// `npm run dev`: the whole yap machine from this checkout. The app and its
 // database run here; the agent runs in your OpenComputer project's
 // development environment and reaches the app through a Cloudflare quick
 // tunnel (no Cloudflare account needed). In order:

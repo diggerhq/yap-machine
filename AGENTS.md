@@ -27,7 +27,7 @@ design repository).
   management client.
 - `src/shared/` the only seam the client and the server both import: the
   validators built from the agent's schemas and the view types.
-- `scripts/` `local.ts` (`npm run local`: database, app, tunnel, secrets,
+- `scripts/` `local.ts` (`npm run dev`: database, app, tunnel, secrets,
   agent deploy), `local-env.ts` (the configuration every script reads),
   `seed-brief.ts` with its parser `brief-file.ts`, `scout-once.ts`.
 - `dev/local/db-server.ts` the local database: PGlite with the real
@@ -39,8 +39,8 @@ design repository).
 
 ## Commands
 
-- `npm run local` the whole thing from this checkout (README); `npm run dev:local -- --seed` the app over sample data, no agent
-- `npm run dev` port 3300 with configuration from `.env.local` alone
+- `npm run dev` the whole thing from this checkout (README); `npm run dev:sample` the app over sample data, no agent (its own database)
+- `npm run dev:app` the app alone on port 3300, configuration from `.env.local`
 - `npm run check` typecheck (app and agent), lint, unit tests, build; what CI runs
 - `npm run seed:brief -- <path>` loads a brief and its searches into the app's database
 - `npm run scout:once` starts one scout run on `YAP_AGENT_REF`
@@ -54,7 +54,7 @@ design repository).
 - The browser talks only to the app's routes; the Worker alone holds the Supabase and OpenComputer keys.
 - Every multi-step write is one Postgres function called through `db.rpc`.
 - Agent routes require the bearer token. Owner routes answer only on the app's own host (never through the tunnel), and owner writes require the app's own origin.
-- `connections/app.ts` holds the app's origin as a literal (gap G5); `npm run local` rewrites it to the tunnel's. Never commit a tunnel address.
+- `connections/app.ts` holds the app's origin as a literal (gap G5); `npm run dev` rewrites it to the tunnel's. Never commit a tunnel address.
 - `.opencomputer/project.json` is per clone and ignored.
 - The model never supplies a query, a cursor or post content: tool code does the plumbing, the model judges.
 - Agent code imports only relative modules and `@opencomputer/agent` (type-only imports of `json-schema-to-ts` excepted).

@@ -12,7 +12,7 @@ if (!env.OPENCOMPUTER_API_KEY) {
   process.exit(2);
 }
 if (!env.YAP_AGENT_REF) {
-  console.error("No agent to run: link the project first (npm run local does it).");
+  console.error("No agent to run: link the project first (npm run dev does it).");
   process.exit(2);
 }
 const origin = env.OPENCOMPUTER_API_URL ?? "https://app.opencomputer.dev";

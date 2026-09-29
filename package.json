@@ -36,9 +36,9 @@
     }
   },
   "scripts": {
-    "local": "tsx scripts/local.ts",
-    "dev": "vite dev --port 3300 --strictPort",
-    "dev:local": "tsx dev/local/run.ts",
+    "dev": "tsx scripts/local.ts",
+    "dev:app": "vite dev --port 3300 --strictPort",
+    "dev:sample": "tsx dev/local/run.ts",
     "build": "vite build",
     "deploy": "vite build && wrangler deploy",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p opencomputer/tsconfig.json",

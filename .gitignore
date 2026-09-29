@@ -19,3 +19,4 @@ supabase/.branches/
 *.tsbuildinfo
 dev/local/.pglite/
 .opencomputer/project.json
+dev/local/.pglite-sample/

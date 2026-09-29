@@ -1,12 +1,9 @@
-// `npm run dev:local`: the whole app on this machine with no Supabase project
-// and no Docker. The local database stand-in (PGlite with the real
-// migration) serves the app's database calls, and `vite dev` runs the app
-// against it on port 3300. `-- --seed` loads supabase/seed.sql into a fresh
-// database; `-- --reset` empties it first. Values in the environment win
-// over these defaults, and .env.local is not read for the database, so a
-// local run never touches a hosted project.
+// `npm run dev:sample`: the app over authored sample data, with no agent,
+// for looking at the screens. The sample database is PGlite with the real
+// migration and supabase/seed.sql, reloaded on every start and kept apart
+// from the database `npm run dev` uses. The app runs on port 3300 against it.
 import { spawn } from "node:child_process";
-import { DB_PORT, openDb, serveRpc } from "./db-server";
+import { DB_PORT, openDb, SAMPLE_DATA, serveRpc } from "./db-server";
 
 export const LOCAL_ENV = {
   SUPABASE_URL: `http://127.0.0.1:${String(DB_PORT)}`,
@@ -16,10 +13,9 @@ export const LOCAL_ENV = {
   OPENCOMPUTER_API_KEY: "",
 } as const;
 
-const seed = process.argv.includes("--seed");
-const pg = await openDb({ reset: process.argv.includes("--reset") || seed, seed });
+const pg = await openDb({ reset: true, seed: true, dir: SAMPLE_DATA });
 await serveRpc(pg);
-console.log(`Local database on ${LOCAL_ENV.SUPABASE_URL}${seed ? ", seeded" : ""}`);
+console.log(`Sample database on ${LOCAL_ENV.SUPABASE_URL}, loaded from supabase/seed.sql`);
 
 const vite = spawn("npx", ["vite", "dev", "--port", "3300", "--strictPort"], {
   stdio: "inherit",
