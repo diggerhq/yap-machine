@@ -186,10 +186,7 @@ export async function restoreVersion(id: string, w: Wiring): Promise<Response> {
 
 /** GET /api/status */
 export async function status(w: Wiring): Promise<Response> {
-  const result = await w.db.rpc<Record<string, unknown>>("app_status", {
-    p_cap_usd: w.config.dailyCapUsd,
-    p_now: iso(w),
-  });
+  const result = await w.db.rpc<Record<string, unknown>>("app_status", { p_now: iso(w) });
   return isRefusal(result) ? refused(result) : Response.json({ ...result, threshold: w.config.threshold });
 }
 

@@ -8,7 +8,6 @@ export interface Config {
   readonly agentToken: string;
   /** The app's public origin, for the origin check on the owner's writes. */
   readonly origin: string;
-  readonly dailyCapUsd: number;
   readonly threshold: number;
   /** Absent when OPENCOMPUTER_API_KEY is unset: learning runs are then not started. */
   readonly oc?: { readonly apiKey: string; readonly agentRef: string; readonly origin: string };
@@ -53,7 +52,6 @@ export function readConfig(source: ConfigSource): Config {
     }),
     agentToken: token,
     origin: origin("YAP_ORIGIN", required(source, "YAP_ORIGIN")),
-    dailyCapUsd: number(source, "YAP_DAILY_X_SPEND_USD", 25, (n) => n >= 0),
     threshold: Math.round(number(source, "YAP_SCORE_THRESHOLD", 60, (n) => n >= 0 && n <= 100)),
     ...(apiKey
       ? {

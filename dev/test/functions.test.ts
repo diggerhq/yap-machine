@@ -14,17 +14,14 @@ type Work = {
   brief: { versionId: number; ownerBody: string; learned: unknown[] };
   feedback: { id: number; verdict: string; note: string | null; author: string; text: string }[];
   searches: { id: string; label: string }[];
-  spend: { todayUsd: number; capUsd: number };
   unconsolidated: number;
 };
 
-const work = (now = T0, session = "scout-1") =>
-  db.rpc<Work>("begin_scout_run", { p_session_id: session, p_cap_usd: 25, p_now: now });
-const claim = (id: string, now = T0, cap = 25) =>
+const work = (now = T0, session = "scout-1") => db.rpc<Work>("begin_scout_run", { p_session_id: session, p_now: now });
+const claim = (id: string, now = T0) =>
   db.rpc<{ error?: string; query?: string; sinceId?: string | null }>("claim_search", {
     p_search_id: id,
     p_session_id: "scout-1",
-    p_cap_usd: cap,
     p_now: now,
   });
 
@@ -95,15 +92,11 @@ describe("claim_search", () => {
     expect(await claim("s")).toMatchObject({ sinceId: null });
   });
 
-  it("refuses at the budget cap without stamping, and for unknown or disabled searches", async () => {
-    await db.query("insert into usage_daily (day, spend_usd) values ('2026-09-29', 25)");
-    expect(await claim("s")).toEqual({ error: "budget_exhausted" });
-    expect(await db.query("select last_run_at from searches")).toEqual([{ last_run_at: null }]);
-    // Spend is per UTC day: tomorrow the cap is fresh.
-    expect(await claim("s", "2026-09-30T00:01:00.000Z")).toMatchObject({ query: "s -is:retweet" });
-    expect(await claim("nope", "2026-09-30T00:01:00.000Z")).toEqual({ error: "unknown_search" });
+  it("refuses unknown and disabled searches without stamping them", async () => {
+    expect(await claim("nope")).toEqual({ error: "unknown_search" });
     await seedSearch(db, "off", 5, false);
-    expect(await claim("off", "2026-09-30T00:01:00.000Z")).toEqual({ error: "not_due" });
+    expect(await claim("off")).toEqual({ error: "not_due" });
+    expect(await db.query("select last_run_at from searches where id = 'off'")).toEqual([{ last_run_at: null }]);
   });
 
   it("refuses without a brief", async () => {
@@ -686,8 +679,8 @@ describe("searches and status", () => {
     });
     // A new query restarts its cursor.
     expect(await db.query("select since_id from searches")).toEqual([{ since_id: null }]);
-    const status = await db.rpc<Record<string, unknown>>("app_status", { p_cap_usd: 25, p_now: T0 });
-    expect(status).toMatchObject({ spend: { todayUsd: 0.03, capUsd: 25 }, learning: null, unconsolidated: 1 });
+    const status = await db.rpc<Record<string, unknown>>("app_status", { p_now: T0 });
+    expect(status).toMatchObject({ spend: { todayUsd: 0.03 }, learning: null, unconsolidated: 1 });
   });
 
   it("upserts a seed's searches enabled", async () => {
@@ -845,7 +838,7 @@ describe("Refresh", () => {
     await db.rpc("begin_manual_scout", { p_session_id: "manual-1", p_now: T0 });
     expect((await work(T0, "manual-1")).searches.map((x) => x.id)).toEqual(["fast", "slow"]);
     const claimAs = (id: string, session: string) =>
-      db.rpc("claim_search", { p_search_id: id, p_session_id: session, p_cap_usd: 25, p_now: T0 });
+      db.rpc("claim_search", { p_search_id: id, p_session_id: session, p_now: T0 });
     expect(await claimAs("fresh", "manual-1")).toEqual({ error: "not_due" });
     expect(await claimAs("slow", "scheduled")).toEqual({ error: "not_due" });
     expect(await claimAs("slow", "manual-1")).toMatchObject({ query: "slow -is:retweet" });

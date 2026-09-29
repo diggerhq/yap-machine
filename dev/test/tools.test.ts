@@ -28,7 +28,6 @@ const CONFIG: Config = {
   supabase: { url: "https://db.example", secretKey: "unused" },
   agentToken: TOKEN,
   origin: ORIGIN,
-  dailyCapUsd: 25,
   threshold: 60,
 };
 
@@ -190,10 +189,7 @@ describe("a scout run through the tools", () => {
     expect(await run(runSearch, { searchId: "mentions" })).toMatchObject({ error: "x_unavailable", status: 429 });
   });
 
-  it("makes no X request when the budget is spent or the search is not due", async () => {
-    await db.query("insert into usage_daily (day, spend_usd) values ('2026-09-29', 25)");
-    expect(await run(runSearch, { searchId: "mentions" })).toMatchObject({ error: "budget_exhausted", status: 409 });
-    await db.query("delete from usage_daily");
+  it("makes no X request when the search is not due", async () => {
     await run(runSearch, { searchId: "mentions" });
     xRequests = [];
     expect(await run(runSearch, { searchId: "mentions" })).toMatchObject({ error: "not_due", status: 409 });

@@ -19,7 +19,6 @@ const CONFIG: Config = {
   supabase: { url: "https://db.example", secretKey: "unused" },
   agentToken: TOKEN,
   origin: ORIGIN,
-  dailyCapUsd: 25,
   threshold: 60,
   oc: { apiKey: "unused", agentRef: "yap-machine@development", origin: "https://oc.example" },
 };
@@ -178,12 +177,11 @@ describe("a scout run through the agent routes", () => {
   });
 
   it("works the due searches, judges the queue and reports", async () => {
-    const work = await json<{ brief: string; searches: { id: string }[]; spend: unknown }>(
+    const work = await json<{ brief: string; searches: { id: string }[] }>(
       await agentCall("GET", "/api/agent/work?sessionId=scout-1"),
     );
     expect(work.brief).toContain("## Owner");
     expect(work.searches).toEqual([{ id: "mentions", label: "Search mentions" }]);
-    expect(work.spend).toEqual({ todayUsd: 0, capUsd: 25 });
 
     const claim = await agentCall("POST", "/api/agent/searches/mentions/claim", { sessionId: "scout-1" });
     expect(await json(claim)).toEqual({ query: "mentions -is:retweet", sinceId: null });
@@ -234,13 +232,6 @@ describe("a scout run through the agent routes", () => {
     expect(response.status).toBe(400);
     expect((await json<{ error: { code: string } }>(response)).error.code).toBe("invalid_request");
     expect((await agentCall("GET", "/api/agent/work")).status).toBe(400);
-  });
-
-  it("refuses a claim at the budget cap", async () => {
-    await db.query("insert into usage_daily (day, spend_usd) values ('2026-09-29', 25)");
-    const response = await agentCall("POST", "/api/agent/searches/mentions/claim", { sessionId: "s" });
-    expect(response.status).toBe(409);
-    expect((await json<{ error: { code: string } }>(response)).error.code).toBe("budget_exhausted");
   });
 
   it("cuts a leased batch to its byte bound and returns the rest next time", async () => {

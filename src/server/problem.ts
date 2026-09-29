@@ -9,7 +9,6 @@ export function problem(status: number, code: string, message: string, extra?: R
 
 const REFUSALS: Record<string, [number, string]> = {
   no_brief: [409, "There is no active brief. Load one with npm run seed:brief."],
-  budget_exhausted: [409, "Today's X spend has reached the cap."],
   not_due: [409, "This search is not due."],
   unknown_search: [404, "No such search."],
   unknown_post: [404, "No such post."],

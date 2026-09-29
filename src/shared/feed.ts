@@ -89,7 +89,6 @@ export interface BriefState {
 }
 
 export interface Status {
-  readonly spend: { todayUsd: number; capUsd: number; postReads: number; userReads: number };
   readonly learning: { id: number; startedAt: string } | null;
   readonly lastLearning: { id: number; finishedAt: string } | null;
   readonly brief: { versionId: number; createdAt: string; createdBy: string; rules: number } | null;

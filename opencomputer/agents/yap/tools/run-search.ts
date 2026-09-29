@@ -1,9 +1,9 @@
 // run_search: one due search, end to end, without the model touching the
-// query, the cursor or the posts. Claim it from the app (which refuses at the
-// budget cap or when it is not due), query X for posts after the cursor,
-// follow at most one further page, and hand everything to the app, which
-// stores new posts, advances the cursor and counts the spend. The model gets
-// counts back; posts reach it later, in leased batches (next_posts).
+// query, the cursor or the posts. Claim it from the app (which refuses a
+// search that is not due), query X for posts after the cursor, follow at
+// most one further page, and hand everything to the app, which stores new
+// posts and advances the cursor. The model gets counts back; posts reach it
+// later, in leased batches (next_posts).
 import { defineTool } from "@opencomputer/agent";
 import { appFailure, callApp } from "../connections/app";
 import { xApi } from "../connections/x";

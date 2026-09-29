@@ -2,9 +2,8 @@
 // were stored before posts kept one. Looks the authors up on X, 100 per
 // request, with X_BEARER_TOKEN from opencomputer/.env.local, and writes the
 // pictures to the app's database (the local one while `npm run dev` runs).
-// Each user returned costs $0.01 and counts against today's X spend; the
-// script refuses when that would pass the daily cap. New posts carry their
-// author's picture already, so this is a one-off.
+// Each user X returns costs $0.01 of your X API credits. New posts carry
+// their author's picture already, so this is a one-off.
 import { isRefusal, supabaseDb } from "../src/server/db";
 import { AGENT_ENV_FILE, appEnv, readEnvFile } from "./local-env";
 
@@ -15,7 +14,6 @@ if (!token) {
   process.exit(2);
 }
 const db = supabaseDb(env.SUPABASE_URL as string, env.SUPABASE_SECRET_KEY as string, fetch);
-const cap = Number(env.YAP_DAILY_X_SPEND_USD || 25);
 
 let authors: string[];
 try {
@@ -28,14 +26,7 @@ if (authors.length === 0) {
   console.log("Every author in the feed has a picture.");
   process.exit(0);
 }
-const status = await db.rpc<{ spend: { todayUsd: number } }>("app_status", { p_cap_usd: cap });
 const cost = authors.length * 0.01;
-if (status.spend.todayUsd + cost > cap) {
-  console.error(
-    `Looking up ${String(authors.length)} authors costs about $${cost.toFixed(2)}, past today's cap of $${String(cap)}.`,
-  );
-  process.exit(1);
-}
 console.log(`Looking up ${String(authors.length)} authors (about $${cost.toFixed(2)})…`);
 
 const bigger = (url: string) => url.replace(/_normal(\.\w+)$/, "_bigger$1");

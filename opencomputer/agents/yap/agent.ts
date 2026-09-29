@@ -2,7 +2,7 @@
 // its session, never by where the session came from. The schedule sends
 // { role: "scout" }; the app starts learning runs with { role: "learning" }.
 // Any other session gets no tools. Tool code does all the plumbing (X, the
-// app, cursors, leases, budget); the model only judges posts and writes
+// app, cursors, leases); the model only judges posts and writes
 // learned rules.
 import { useInput, useModel, useTool } from "@opencomputer/agent";
 import { getFeedback } from "./tools/get-feedback";

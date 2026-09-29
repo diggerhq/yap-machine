@@ -42,10 +42,24 @@ fixed domain every free ngrok account gets.
   authtoken added (`ngrok config add-authtoken <token>`).
 - Your ngrok domain, from the ngrok dashboard under **Domains**, such as
   `https://your-words.ngrok-free.app`.
-- An OpenComputer account (`npx opencomputer login`) and an API key for your
-  organization, from the dashboard.
-- An X API app on [pay-per-use](https://docs.x.com/x-api/getting-started/pricing)
-  with credits loaded, and its app-only bearer token.
+- An OpenComputer account; sign in with `npx opencomputer login`.
+- An X developer app on [pay-per-use](https://docs.x.com/x-api/getting-started/pricing)
+  with credits loaded.
+
+### Keys and settings
+
+| Name | Where it goes | Required | What it is |
+|---|---|---|---|
+| `X_BEARER_TOKEN` | `opencomputer/.env.local` | yes | Your X app's **Bearer Token**: X developer portal → your app → **Keys and tokens**. The app-only one, starting `AAAA…`; not the API key and secret, not an access token. |
+| `OPENCOMPUTER_API_KEY` | `.env.local` | yes | An API key for your OpenComputer organization, from the dashboard. The app uses it to start the agent's runs. |
+| `YAP_PUBLIC_ORIGIN` | `.env.local` | yes | Your ngrok domain, e.g. `https://your-words.ngrok-free.app`: the address the agent reaches the app at. |
+| `YAP_AGENT_TOKEN` | both `.env.local` files | yes | Written by `npm run setup`. The agent presents it to the app; you don't need to set it. |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | `.env.local` | no | A hosted Supabase project instead of the local database. |
+| `YAP_SCORE_THRESHOLD` | `.env.local` | no | The score a post needs to reach Open. Default 60. |
+
+`npm run secrets` uploads `X_BEARER_TOKEN` and `YAP_AGENT_TOKEN` to
+OpenComputer, which attaches them to the agent's outgoing requests. The rest
+stay on your machine.
 
 ### Set up, once
 
@@ -120,12 +134,13 @@ every search not run in the last five minutes.
 
 ## What it costs
 
-- **X:** $0.005 per post and $0.01 per user in a response, charged once per
-  UTC day. The app stops searching when today's spend reaches
-  `YAP_DAILY_X_SPEND_USD` ($25 by default) and shows the spend in the
-  header.
-- **OpenComputer:** each run's model calls and machine time, billed to your
-  organization.
+- **X API:** pay-per-use, drawn from the credits you load in the X developer
+  portal: $0.005 for each post and $0.01 for each user a search returns,
+  charged once per UTC day. A search fetches only posts newer than its last
+  run, so a post is paid for once. The app has no spending cap of its own:
+  when your credits run out, searches fail until you top up.
+- **OpenComputer:** the agent's model calls and machine time, billed to your
+  OpenComputer organization.
 
 ## How it's built
 

@@ -30,7 +30,6 @@ interface Work {
   brief: { versionId: number; ownerBody: string; learned: LearnedRule[] };
   feedback: unknown[];
   searches: unknown[];
-  spend: { todayUsd: number; capUsd: number };
   unconsolidated: number;
 }
 
@@ -40,7 +39,6 @@ export async function work(req: Request, w: Wiring): Promise<Response> {
   if (!sessionId) return invalid("sessionId is required");
   const result = await w.db.rpc<Work>("begin_scout_run", {
     p_session_id: sessionId,
-    p_cap_usd: w.config.dailyCapUsd,
     p_now: iso(w),
   });
   if (isRefusal(result)) return refused(result);
@@ -51,7 +49,6 @@ export async function work(req: Request, w: Wiring): Promise<Response> {
     brief: renderBrief(result.brief.ownerBody, result.brief.learned),
     feedback: result.feedback,
     searches: result.searches,
-    spend: result.spend,
   });
 }
 
@@ -63,7 +60,6 @@ export async function claim(req: Request, searchId: string, w: Wiring): Promise<
     await w.db.rpc("claim_search", {
       p_search_id: searchId,
       p_session_id: parsed.sessionId,
-      p_cap_usd: w.config.dailyCapUsd,
       p_now: iso(w),
     }),
   );

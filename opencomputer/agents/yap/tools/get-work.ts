@@ -6,7 +6,7 @@ import { EMPTY_INPUT } from "../contract";
 export const getWork = defineTool({
   name: "get_work",
   description:
-    "Read the relevance brief, the owner's recent feedback on posts, the searches that are due now, and today's X spend. Call first.",
+    "Read the relevance brief, the owner's recent feedback on posts, and the searches that are due now. Call first.",
   input: EMPTY_INPUT,
   async run({ sessionId }) {
     const answer = await callApp("GET", `/api/agent/work?sessionId=${encodeURIComponent(sessionId)}`);

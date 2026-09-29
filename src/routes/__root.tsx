@@ -1,5 +1,5 @@
-// The document and the shell: the header (the three screens, today's X spend
-// against the cap, and what the learning loop is doing) over the page.
+// The document and the shell: the header (the three screens, and what the
+// learning loop is doing) over the page.
 import { type QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
 import { type ReactNode, useEffect } from "react";
@@ -7,7 +7,6 @@ import { Toaster } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { fetchStatus } from "@/lib/api";
-import { usd } from "@/lib/format";
 import { initTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import appCss from "@/styles.css?url";
@@ -100,28 +99,19 @@ function Header() {
 function StatusLine() {
   const status = useQuery(statusQuery);
   if (!status.data) return null;
-  const { spend, learning, brief } = status.data;
-  const atCap = spend.todayUsd >= spend.capUsd;
+  const { learning, brief } = status.data;
   return (
-    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+    <div className="hidden items-center gap-3 text-xs text-muted-foreground sm:flex">
       {learning ? (
-        <span className="hidden items-center gap-1.5 sm:flex">
+        <span className="flex items-center gap-1.5">
           <span aria-hidden="true" className="status-dot-pulse size-1.5 rounded-full bg-status-working-dot" />
           Learning…
         </span>
       ) : brief && brief.createdBy === "learning" ? (
-        <Link to="/brief" className="hidden rounded-sm hover:text-foreground sm:inline">
+        <Link to="/brief" className="rounded-sm hover:text-foreground">
           Brief updated · {brief.rules} {brief.rules === 1 ? "rule" : "rules"}
         </Link>
       ) : null}
-      <span
-        className={cn("whitespace-nowrap tabular-nums", atCap && "text-attention")}
-        title="X API spend today (UTC), counted from every object returned, against the daily cap"
-      >
-        <span className="hidden sm:inline">X </span>
-        {usd(spend.todayUsd)}
-        <span className="hidden sm:inline"> / {usd(spend.capUsd)}</span>
-      </span>
     </div>
   );
 }
